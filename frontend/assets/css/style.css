@@ -1,0 +1,328 @@
+/* frontend/assets/css/style.css */
+
+/* ==================== GLOBAL STYLES ==================== */
+:root {
+  --primary-color: #4A90E2;
+  --secondary-color: #50E3C2;
+  --success-color: #7ED321;
+  --danger-color: #D0021B;
+  --warning-color: #F5A623;
+  --dark-color: #2C3E50;
+  --light-color: #F8F9FA;
+  --text-color: #333333;
+  --border-color: #E1E8ED;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  background-color: #F5F7FA;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+/* ==================== NAVIGATION ==================== */
+.navbar {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.navbar-brand {
+  font-size: 24px;
+  font-weight: bold;
+  color: white !important;
+}
+
+.navbar-nav .nav-link {
+  color: rgba(255,255,255,0.9) !important;
+  padding: 8px 16px !important;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.navbar-nav .nav-link:hover {
+  background-color: rgba(255,255,255,0.2);
+  color: white !important;
+}
+
+.navbar-nav .nav-link.active {
+  background-color: rgba(255,255,255,0.3);
+  color: white !important;
+}
+
+/* ==================== BUTTONS ==================== */
+.btn {
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  border: none;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
+}
+
+.btn-outline-primary {
+  border: 2px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+/* ==================== CARDS ==================== */
+.card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+.card-title {
+  color: var(--dark-color);
+  font-weight: 600;
+}
+
+.card-text {
+  color: #666;
+}
+
+/* ==================== BADGES ==================== */
+.badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.badge-level {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.badge-time {
+  background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+.badge-students {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+}
+
+/* ==================== HERO SECTION ==================== */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  padding: 80px 0;
+  text-align: center;
+}
+
+.hero-section h1 {
+  font-size: 48px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.hero-section p {
+  font-size: 20px;
+  margin-bottom: 30px;
+  opacity: 0.95;
+}
+
+/* ==================== FORMS ==================== */
+.form-control {
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+  padding: 12px 16px;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(74, 144, 226, 0.25);
+}
+
+.form-label {
+  font-weight: 500;
+  color: var(--dark-color);
+  margin-bottom: 8px;
+}
+
+/* ==================== AUTH PAGES ==================== */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  max-width: 450px;
+  width: 100%;
+}
+
+.auth-card h2 {
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--dark-color);
+}
+
+/* ==================== COURSE CARD ==================== */
+.course-card {
+  position: relative;
+  margin-bottom: 30px;
+}
+
+.course-card .card-body {
+  padding: 20px;
+}
+
+.course-rating {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #F5A623;
+  font-weight: 500;
+}
+
+.course-stats {
+  display: flex;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.course-stats span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* ==================== PROGRESS BAR ==================== */
+.progress {
+  height: 8px;
+  border-radius: 10px;
+  background-color: #E1E8ED;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+  border-radius: 10px;
+}
+
+/* ==================== LOADING SPINNER ==================== */
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: var(--primary-color);
+}
+
+/* ==================== ALERTS ==================== */
+.alert {
+  border-radius: 10px;
+  border: none;
+  padding: 15px 20px;
+}
+
+.alert-success {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.alert-info {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+/* ==================== FOOTER ==================== */
+footer {
+  background-color: var(--dark-color);
+  color: white;
+  padding: 40px 0 20px;
+  margin-top: 80px;
+}
+
+footer h5 {
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+footer a {
+  color: rgba(255,255,255,0.7);
+  display: block;
+  margin-bottom: 10px;
+}
+
+footer a:hover {
+  color: white;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+  .hero-section h1 {
+    font-size: 32px;
+  }
+  
+  .hero-section p {
+    font-size: 16px;
+  }
+  
+  .auth-card {
+    padding: 30px 20px;
+  }
+}
