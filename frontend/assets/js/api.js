@@ -13,11 +13,11 @@ function getAuthHeaders() {
     const headers = {
         'Content-Type': 'application/json'
     };
-    
+
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     return headers;
 }
 
@@ -31,13 +31,13 @@ async function apiCall(endpoint, options = {}) {
                 ...options.headers
             }
         });
-        
+
         const data = await response.json();
-        
+
         if (!response.ok) {
             throw new Error(data.message || 'API call failed');
         }
-        
+
         return data;
     } catch (error) {
         console.error('API Error:', error);
@@ -49,102 +49,111 @@ async function apiCall(endpoint, options = {}) {
 const API = {
     // Auth
     auth: {
-        login: (email, password) => 
+        login: (email, password) =>
             apiCall('/auth/login', {
                 method: 'POST',
                 body: JSON.stringify({ email, matKhau: password })
             }),
-        
-        register: (userData) => 
+
+        register: (userData) =>
             apiCall('/auth/register', {
                 method: 'POST',
                 body: JSON.stringify(userData)
             }),
-        
-        getProfile: () => 
+
+        getProfile: () =>
             apiCall('/auth/profile'),
-        
-        changePassword: (oldPassword, newPassword) => 
+
+        changePassword: (oldPassword, newPassword) =>
             apiCall('/auth/change-password', {
                 method: 'PUT',
-                body: JSON.stringify({ 
-                    matKhauCu: oldPassword, 
-                    matKhauMoi: newPassword 
+                body: JSON.stringify({
+                    matKhauCu: oldPassword,
+                    matKhauMoi: newPassword
                 })
             })
     },
-    
+
+
     // Courses
     courses: {
         getAll: (params = {}) => {
             const queryString = new URLSearchParams(params).toString();
             return apiCall(`/courses${queryString ? '?' + queryString : ''}`);
         },
-        
-        getById: (id) => 
+
+        getById: (id) =>
             apiCall(`/courses/${id}`),
-        
-        getMyCourses: () => 
+
+        getMyCourses: () =>
             apiCall('/courses/my/courses'),
-        
-        enroll: (courseId) => 
+
+        enroll: (courseId) =>
             apiCall('/courses/enroll', {
                 method: 'POST',
                 body: JSON.stringify({ courseId })
             }),
-        
-        rate: (courseId, rating, comment) => 
+
+        rate: (courseId, rating, comment) =>
             apiCall('/courses/rate', {
                 method: 'POST',
                 body: JSON.stringify({ courseId, rating, comment })
             }),
-        
-        getReviews: (courseId) => 
+
+        getReviews: (courseId) =>
             apiCall(`/courses/${courseId}/reviews`),
-        
-        getCategories: () => 
+
+        getCategories: () =>
             apiCall('/courses/categories')
     },
-    
+
     // Lessons
     lessons: {
-        getById: (id) => 
+        getById: (id) =>
             apiCall(`/lessons/${id}`),
-        
-        start: (lessonId) => 
+
+        start: (lessonId) =>
             apiCall('/lessons/start', {
                 method: 'POST',
                 body: JSON.stringify({ lessonId })
             }),
-        
-        complete: (lessonId, timeSpent) => 
+
+        complete: (lessonId, timeSpent) =>
             apiCall('/lessons/complete', {
                 method: 'POST',
                 body: JSON.stringify({ lessonId, timeSpent })
             })
     },
-    
+
     // Quiz
     quiz: {
-        getByCourse: (courseId) => 
+        getByCourse: (courseId) =>
             apiCall(`/quiz/course/${courseId}`),
-        
-        getInfo: (quizId) => 
+
+        getInfo: (quizId) =>
             apiCall(`/quiz/${quizId}/info`),
-        
-        start: (quizId) => 
+
+        start: (quizId) =>
             apiCall(`/quiz/${quizId}/start`),
-        
-        submit: (quizId, answers, timeSpent) => 
+
+        submit: (quizId, answers, timeSpent) =>
             apiCall('/quiz/submit', {
                 method: 'POST',
                 body: JSON.stringify({ quizId, answers, timeSpent })
             }),
-        
-        getResult: (resultId) => 
+
+        getResult: (resultId) =>
             apiCall(`/quiz/result/${resultId}`),
-        
-        getAnswers: (quizId) => 
+
+        getAnswers: (quizId) =>
             apiCall(`/quiz/${quizId}/answers`)
+    },
+    // Dashboard
+    dashboard: {
+        getUserStats: () =>
+            apiCall('/dashboard/user/stats'),
+
+        getAdminStats: () =>
+            apiCall('/dashboard/admin/stats')
     }
 };

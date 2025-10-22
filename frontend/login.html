@@ -60,19 +60,7 @@
                         Chưa có tài khoản? 
                         <a href="register.html">Đăng ký ngay</a>
                     </p>
-                </div>
-                
-                <hr class="my-4">
-                
-                <div class="text-center">
-                    <p class="text-muted mb-2">Tài khoản demo:</p>
-                    <small class="text-info d-block">
-                        <i class="fas fa-user-shield"></i> Admin: admin@learningenglish.com / Admin@123456
-                    </small>
-                    <small class="text-success d-block">
-                        <i class="fas fa-user"></i> Học viên: student1@email.com / 123456
-                    </small>
-                </div>
+                </div>             
             </form>
         </div>
     </div>
@@ -141,7 +129,7 @@
                         if (data.user.isAdmin) {
                             window.location.href = 'admin/dashboard.html';
                         } else {
-                            window.location.href = 'index.html';
+                            window.location.href = 'dashboard.html';
                         }
                     }, 1000);
                 } else {

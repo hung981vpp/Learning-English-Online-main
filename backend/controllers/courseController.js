@@ -10,6 +10,7 @@ class CourseController {
       let queryString = `
         SELECT 
           kh.MaKhoaHoc,
+          kh.MaDanhMuc,
           kh.TenKhoaHoc,
           kh.MoTa,
           kh.AnhBia,

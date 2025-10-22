@@ -15,7 +15,7 @@ function getCurrentUser() {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login.html';
+    window.location.href = '/frontend/login.html';
 }
 
 // Check authentication and update navbar
@@ -26,6 +26,7 @@ function checkAuth() {
     const logoutNav = document.getElementById('logoutNav');
     const profileNav = document.getElementById('profileNav');
     const myCoursesNav = document.getElementById('myCoursesNav');
+    const heroRegisterBtn = document.getElementById('heroRegisterBtn');
     
     if (user) {
         // User is logged in
@@ -41,6 +42,7 @@ function checkAuth() {
                 profileLink.innerHTML = `<i class="fas fa-user"></i> ${user.hoTen || 'Tài khoản'}`;
             }
         }
+        if (heroRegisterBtn) heroRegisterBtn.style.display = 'none';
     } else {
         // User is not logged in
         if (loginNav) loginNav.style.display = 'block';
