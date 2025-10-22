@@ -1,282 +1,316 @@
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learning English Online - Học tiếng Anh trực tuyến</title>
+    <title>Trang chủ - Learning English Online</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">
-                <i class="fas fa-graduation-cap"></i> Learning English
+                <i class="fas fa-graduation-cap"></i>
+                Learning English
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link active" href="index.html">
-                            <i class="fas fa-home"></i> Trang chủ
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="pages/courses.html">
-                            <i class="fas fa-book"></i> Khóa học
-                        </a>
-                    </li>
+            <div class="collapse navbar-collapse" id="navbarContent">
+                
+                <ul class="navbar-nav ms-auto navbar-auth-buttons">
                     <li class="nav-item" id="myCoursesNav" style="display: none;">
                         <a class="nav-link" href="pages/my-courses.html">
-                            <i class="fas fa-bookmark"></i> Khóa học của tôi
+                            <i class="fas fa-play-circle me-1"></i> Vào học
                         </a>
+                    </li>
+                    <li class="nav-item" id="loginNav">
+                        <a class="nav-link" href="login.html">Đăng nhập</a>
                     </li>
                     <li class="nav-item" id="profileNav" style="display: none;">
                         <a class="nav-link" href="pages/profile.html">
                             <i class="fas fa-user"></i> Tài khoản
                         </a>
                     </li>
-                    <li class="nav-item" id="loginNav">
-                        <a class="nav-link" href="login.html">
-                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                        </a>
-                    </li>
                     <li class="nav-item" id="logoutNav" style="display: none;">
-                        <a class="nav-link" href="#" onclick="logout()">
-                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                        </a>
+                        <a class="nav-link" href="#" onclick="logout()">Đăng xuất</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <h1>Học tiếng Anh trực tuyến</h1>
-            <p>Nâng cao kỹ năng tiếng Anh của bạn với hàng trăm khóa học chất lượng</p>
-            <div class="mt-4">
-                <a href="pages/courses.html" class="btn btn-light btn-lg me-2">
-                    <i class="fas fa-book"></i> Khám phá khóa học
-                </a>
-                <a id="heroRegisterBtn" href="register.html" class="btn btn-outline-light btn-lg">
-                    <i class="fas fa-user-plus"></i> Đăng ký ngay
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Categories Section -->
-    <section class="py-5">
-        <div class="container">
-            <h2 class="text-center mb-5">Danh mục khóa học</h2>
-            <div class="row" id="categoriesContainer">
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+            <div class="row align-items-center">
+                <div class="col-lg-6">
+                    <h1 class="display-4 fw-bold mb-3">Làm chủ Tiếng Anh, Mở rộng Tương lai</h1>
+                    <p class="lead mb-4">
+                        Nền tảng học Tiếng Anh trực tuyến với lộ trình cá nhân hóa,
+                        giúp bạn tự tin giao tiếp và chinh phục mọi mục tiêu.
+                    </p>
+                    <div class="hero-cta-buttons" id="heroRegisterBtn">
+                        <a href="register.html" class="btn btn-light btn-lg">
+                            Đăng ký học thử
+                            <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                        <a href="pages/courses.html" class="btn btn-outline-light btn-lg">
+                            Khám phá khóa học
+                        </a>
                     </div>
+                </div>
+                <div class="col-lg-6 d-none d-lg-block">
+                    <img src="assets/images/main.jpg" class="img-fluid hero-image-style" alt="Học Tiếng Anh Trực Tuyến">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Popular Courses Section -->
     <section class="py-5 bg-light">
         <div class="container">
-            <h2 class="text-center mb-5">Khóa học phổ biến</h2>
-            <div class="row" id="coursesContainer">
-                <div class="col-12 text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Tại sao chọn Learning English?</h2>
+                <p class="text-muted">Lợi ích vượt trội cho hành trình học tập của bạn</p>
+            </div>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100 p-4 text-center"> 
+                        <i class="fas fa-user-tie feature-icon"></i>
+                        <h4 class="fw-bold">Giảng viên chuyên môn</h4>
+                        <p class="text-muted">Học hỏi từ các chuyên gia hàng đầu trong lĩnh vực giảng dạy Tiếng Anh với nhiều năm kinh nghiệm.</p>
                     </div>
                 </div>
-            </div>
-            <div class="text-center mt-4">
-                <a href="pages/courses.html" class="btn btn-primary btn-lg">
-                    Xem tất cả khóa học <i class="fas fa-arrow-right"></i>
-                </a>
+                 <div class="col-lg-4 mb-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="far fa-clock feature-icon"></i>
+                        <h4 class="fw-bold">Học tập linh hoạt</h4>
+                        <p class="text-muted">Truy cập bài giảng mọi lúc, mọi nơi. Tự chủ lộ trình học tập phù hợp với thời gian biểu của bạn.</p>
+                    </div>
+                </div>
+                 <div class="col-lg-4 mb-4">
+                    <div class="card h-100 p-4 text-center">
+                        <i class="fas fa-video feature-icon"></i>
+                        <h4 class="fw-bold">Nội dung tương tác</h4>
+                        <p class="text-muted">Các bài học, bài kiểm tra và dự án được thiết kế sinh động, giúp bạn áp dụng kiến thức ngay lập tức.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
     <section class="py-5">
         <div class="container">
-            <h2 class="text-center mb-5">Tại sao chọn chúng tôi?</h2>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <i class="fas fa-chalkboard-teacher fa-3x text-primary mb-3"></i>
-                            <h5 class="card-title">Giảng viên chất lượng</h5>
-                            <p class="card-text">Đội ngũ giảng viên giàu kinh nghiệm, tận tâm</p>
-                        </div>
+            <h2 class="text-center mb-4 fw-bold">Khám phá theo danh mục</h2>
+            <div id="categories-loader"></div>
+            <div class="row" id="categories-list">
+                </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4 fw-bold">Khóa học nổi bật</h2>
+            <div id="featured-courses-loader"></div>
+            <div class="row" id="featured-courses-list">
+                </div>
+            <div class="text-center mt-4">
+                <a href="pages/courses.html" class="btn btn-primary btn-lg">Xem tất cả khóa học</a>
+            </div>
+        </div>
+    </section>
+    
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5 fw-bold">Học viên nói gì về chúng tôi?</h2>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="testimonial-card">
+                        <img src="https://i.pravatar.cc/100?img=11" alt="Học viên 1" class="testimonial-avatar">
+                        <p class="testimonial-quote">
+                            "Chất lượng khóa học thật tuyệt vời! Lộ trình rõ ràng và giảng viên rất tận tâm. Tôi đã đạt TOEIC 750+."
+                        </p>
+                        <h6 class="testimonial-name">Nguyễn Văn An</h6>
+                        <small class="text-muted">Học viên TOEIC</small>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <i class="fas fa-clock fa-3x text-primary mb-3"></i>
-                            <h5 class="card-title">Học mọi lúc mọi nơi</h5>
-                            <p class="card-text">Linh hoạt thời gian, học tập bất cứ đâu</p>
-                        </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="testimonial-card">
+                        <img src="https://i.pravatar.cc/100?img=12" alt="Học viên 2" class="testimonial-avatar">
+                        <p class="testimonial-quote">
+                            "Mình đã tự tin giao tiếp hơn rất nhiều sau khóa học. Các bài luyện tập thực tế và hữu ích."
+                        </p>
+                        <h6 class="testimonial-name">Trần Thị Bích</h6>
+                        <small class="text-muted">Học viên Giao tiếp</small>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
-                            <h5 class="card-title">Chứng chỉ uy tín</h5>
-                            <p class="card-text">Nhận chứng chỉ sau khi hoàn thành khóa học</p>
-                        </div>
+                <div class="col-lg-4 mb-4">
+                    <div class="testimonial-card">
+                        <img src="https://i.pravatar.cc/100?img=14" alt="Học viên 3" class="testimonial-avatar">
+                        <p class="testimonial-quote">
+                            "Nền tảng dễ sử dụng, học mọi lúc mọi nơi. Rất phù hợp cho người đi làm bận rộn như tôi."
+                        </p>
+                        <h6 class="testimonial-name">Lê Minh Tuấn</h6>
+                        <small class="text-muted">Kỹ sư phần mềm</small>
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- Footer -->
-    <footer>
+    
+    <section class="py-5 hero-section text-white text-center">
         <div class="container">
+            <h2 class="fw-bold">Sẵn sàng nâng trình Tiếng Anh?</h2>
+            <p class="lead my-3">
+                Tạo tài khoản miễn phí và bắt đầu học ngay hôm nay.
+            </p>
+            <a href="register.html" class="btn btn-light btn-lg" id="finalRegisterBtn">
+                Đăng ký ngay
+                <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </section>
+
+
+    <footer class="text-white pt-5 pb-4">
+        <div class="container text-center text-md-start">
             <div class="row">
-                <div class="col-md-4 mb-4">
-                    <h5><i class="fas fa-graduation-cap"></i> Learning English</h5>
-                    <p class="text-muted">Nền tảng học tiếng Anh trực tuyến hàng đầu Việt Nam</p>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Liên kết</h5>
-                    <a href="pages/courses.html">Khóa học</a>
-                    <a href="#">Về chúng tôi</a>
-                    <a href="#">Liên hệ</a>
-                </div>
-                <div class="col-md-4 mb-4">
-                    <h5>Liên hệ</h5>
-                    <p class="text-muted">
-                        <i class="fas fa-envelope"></i> info@learningenglish.com<br>
-                        <i class="fas fa-phone"></i> 0901234567
+                <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold">
+                        <i class="fas fa-graduation-cap me-2"></i>Learning English
+                    </h5>
+                    <p>
+                        Nền tảng học tiếng Anh trực tuyến, cung cấp các khóa học đa dạng và lộ trình học tập cá nhân hóa.
                     </p>
                 </div>
-            </div>
-            <hr style="border-color: rgba(255,255,255,0.2);">
-            <div class="text-center">
-                <p class="text-muted">&copy; 2025 Learning English Online. All rights reserved.</p>
+                <div class="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold">Khóa học</h5>
+                    <p><a href="#!">Giao tiếp</a></p>
+                    <p><a href="#!">TOEIC</a></p>
+                    <p><a href="#!">Ngữ pháp</a></p>
+                    <p><a href="#!">Từ vựng</a></p>
+                </div>
+                <div class="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold">Liên kết</h5>
+                    <p><a href="#!">Về chúng tôi</a></p>
+                    <p><a href="#!">Hỗ trợ</a></p>
+                    <p><a href="#!">Điều khoản</a></p>
+                    <p><a href="#!">Chính sách</a></p>
+                </div>
+                <div class="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
+                    <h5 class="text-uppercase mb-4 fw-bold">Liên hệ</h5>
+                    <p><i class="fas fa-home me-3"></i> Hà Nội, Việt Nam</p>
+                    <p><i class="fas fa-envelope me-3"></i> info@learningenglish.com</p>
+                    <p><i class="fas fa-phone me-3"></i> +84 123 456 789</p>
+                </div>
             </div>
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div id="toastContainer" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script src="assets/js/api.js"></script>
-    <script src="assets/js/auth.js"></script>
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/auth.js"></script>
+
     <script>
-        // Auto redirect if logged in
         document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
             const user = getCurrentUser();
+            const heroRegisterBtn = document.getElementById('heroRegisterBtn');
+            const finalRegisterBtn = document.getElementById('finalRegisterBtn');
             if (user) {
-                // User đã đăng nhập, redirect to dashboard
-                window.location.href = 'dashboard.html';
-                return;
+                if(heroRegisterBtn) heroRegisterBtn.style.display = 'none';
+                if(finalRegisterBtn) finalRegisterBtn.style.display = 'none';
             }
-
-            // User chưa đăng nhập, load landing page
-            checkAuth();
+            loadFeaturedCourses();
             loadCategories();
-            loadPopularCourses();
         });
-        
-        // Load categories
-        async function loadCategories() {
+
+        async function loadFeaturedCourses() {
+            const listEl = document.getElementById('featured-courses-list');
+            const loaderEl = document.getElementById('featured-courses-loader');
+            showLoading('featured-courses-loader'); 
             try {
-                const response = await fetch(API_URL + '/courses/categories');
-                const data = await response.json();
-
-                if (data.success) {
-                    displayCategories(data.data);
-                }
-            } catch (error) {
-                console.error('Load categories error:', error);
-            }
-        }
-
-        function displayCategories(categories) {
-            const container = document.getElementById('categoriesContainer');
-            container.innerHTML = categories.slice(0, 4).map(cat => `
-                <div class="col-md-3 mb-4">
-                    <div class="card text-center h-100">
-                        <div class="card-body">
-                            <div class="fs-1 mb-3">${cat.Icon || '📚'}</div>
-                            <h5 class="card-title">${cat.TenDanhMuc}</h5>
-                            <p class="card-text text-muted">${cat.SoLuongKhoaHoc} khóa học</p>
-                            <a href="pages/courses.html?category=${cat.MaDanhMuc}" class="btn btn-outline-primary">
-                                Xem khóa học
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Load popular courses
-        async function loadPopularCourses() {
-            try {
-                const response = await fetch(API_URL + '/courses?limit=3');
-                const data = await response.json();
-
-                if (data.success) {
-                    displayCourses(data.data);
-                }
-            } catch (error) {
-                console.error('Load courses error:', error);
-            }
-        }
-
-        function displayCourses(courses) {
-            const container = document.getElementById('coursesContainer');
-            container.innerHTML = courses.slice(0, 3).map(course => `
-                <div class="col-md-4 mb-4">
-                    <div class="card course-card h-100">
-                        <img src="${course.AnhBia || 'https://via.placeholder.com/400x200'}" 
-                             class="card-img-top" alt="${course.TenKhoaHoc}">
-                        <div class="card-body">
-                            <span class="badge badge-level mb-2">${course.CapDoCEFR || 'A1'}</span>
-                            <h5 class="card-title">${course.TenKhoaHoc}</h5>
-                            <p class="card-text text-muted">${course.MoTa?.substring(0, 100)}...</p>
-                            <div class="course-stats">
-                                <span>
-                                    <i class="fas fa-star text-warning"></i> ${course.DiemTrungBinh || 0}
-                                </span>
-                                <span>
-                                    <i class="fas fa-users"></i> ${course.LuotDangKy || 0}
-                                </span>
-                                <span>
-                                    <i class="fas fa-book"></i> ${course.TongSoBaiHoc || 0} bài
-                                </span>
+                const data = await API.courses.getAll({ limit: 6 });
+                if (data.success && data.data.length > 0) {
+                    let html = '';
+                    data.data.forEach(course => {
+                        const imageUrl = (course.AnhBia || 'assets/images/placeholder.jpg').replace('frontend/', '');
+                        html += `
+                            <div class="col-12 col-md-6 col-lg-4 d-flex align-items-stretch">
+                                <div class="card course-card w-100">
+                                    <img src="${imageUrl}" class="card-img-top" alt="${course.TenKhoaHoc}">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">${truncateText(course.TenKhoaHoc, 50)}</h5>
+                                        <p class="card-text text-muted">GV: ${course.TenGiangVien}</p>
+                                        <div class="course-rating mb-2">
+                                            ${generateStarRating(course.DiemTrungBinh)}
+                                        </div>
+                                        <div class="course-stats text-muted">
+                                            <span><i class="fas fa-signal"></i> ${course.CapDoCEFR}</span>
+                                            <span><i class="far fa-clock"></i> ${formatMinutes(course.ThoiLuongUocTinh)}</span>
+                                            <span><i class="fas fa-users"></i> ${course.LuotDangKy}</span>
+                                        </div>
+                                        <a href="pages/course-detail.html?id=${course.MaKhoaHoc}" class="btn btn-primary mt-auto stretched-link">
+                                            Xem chi tiết
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
-                            <a href="pages/course-detail.html?id=${course.MaKhoaHoc}" 
-                               class="btn btn-primary w-100 mt-3">
-                                Xem chi tiết
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+                        `;
+                    });
+                    listEl.innerHTML = html;
+                } else {
+                    listEl.innerHTML = '<p class="text-center">Chưa có khóa học nào.</p>';
+                }
+            } catch (error) {
+                showError('featured-courses-loader', 'Không thể tải khóa học.');
+            } finally {
+                loaderEl.innerHTML = '';
+            }
         }
 
-        // Init
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
-            loadCategories();
-            loadPopularCourses();
-        });
+        async function loadCategories() {
+            const listEl = document.getElementById('categories-list');
+            const loaderEl = document.getElementById('categories-loader');
+            showLoading('categories-loader');
+            try {
+                const data = await API.courses.getCategories();
+                if (data.success && data.data.length > 0) {
+                    let html = '';
+                    data.data.forEach(category => {
+                        html += `
+                            <div class="col-6 col-md-4 col-lg-2 mb-3">
+                                <a href="pages/courses.html?category=${category.MaDanhMuc}" class="text-decoration-none">
+                                    <div class="card card-body text-center h-100 shadow-sm">
+                                        <i class="fas ${category.Icon || 'fa-book-open'} fa-2x mb-2 text-primary"></i>
+                                        <h6 class="mb-1">${category.TenDanhMuc}</h6>
+                                        <small class="text-muted">(${category.SoLuongKhoaHoc} khóa học)</small>
+                                    </div>
+                                </a>
+                            </div>
+                        `;
+                    });
+                    listEl.innerHTML = html;
+                } else {
+                    listEl.innerHTML = '<p class="text-center">Không tìm thấy danh mục.</p>';
+                }
+            } catch (error) {
+                showError('categories-loader', 'Không thể tải danh mục.');
+            } finally {
+                loaderEl.innerHTML = '';
+            }
+        }
     </script>
-</body>
 
+</body>
 </html>

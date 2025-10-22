@@ -1,0 +1,69 @@
+/* CSS Dành riêng cho trang Đăng nhập / Đăng ký */
+
+/* ==================== AUTH PAGES ==================== */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Dùng lại gradient từ :root của style.css */
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); 
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  max-width: 450px;
+  width: 100%;
+}
+
+.auth-card h2 {
+  text-align: center;
+  color: var(--dark-color);
+}
+
+/* ==================== AUTH PAGES (ĐIỀU CHỈNH CHO GỌN) ==================== */
+
+/* Giảm padding tổng thể của card (từ 40px) */
+.auth-card {
+    padding: 30px; 
+}
+
+/* Giảm margin dưới tiêu đề H2 (từ 30px) */
+.auth-card h2 {
+    margin-bottom: 20px; 
+}
+
+/* Giảm margin dưới dòng mô tả "Bắt đầu hành trình..." */
+.auth-card p.mb-4 {
+    margin-bottom: 1.25rem !important;
+}
+
+/* Giảm khoảng cách của các trường input */
+.auth-card .form-label {
+    margin-bottom: 0.25rem; /* Giảm khoảng cách giữa label và input */
+}
+.auth-card .mb-3 {
+    margin-bottom: 0.8rem !important; /* Giảm khoảng cách giữa các field (từ 1rem) */
+}
+
+/* Giảm khoảng cách trên nút bấm "Đăng ký" */
+.auth-card .d-grid.mt-4 {
+    margin-top: 1.5rem !important; /* Giảm khoảng cách trên nút (từ 2rem) */
+}
+
+/* Giảm khoảng cách dưới nút bấm */
+.auth-card .mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+/* ==================== TOAST POSITION (AUTH PAGES) ==================== */
+/* Đảm bảo toast container nằm đúng vị trí dưới cùng bên phải */
+#toastContainer {
+    position: fixed !important; /* Ghi đè các style khác nếu cần */
+    bottom: 1rem !important;
+    right: 1rem !important;
+    top: auto !important; /* Hủy bỏ top: 0 nếu có */
+    left: auto !important; /* Hủy bỏ left: 0 nếu có */
+}

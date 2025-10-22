@@ -15,7 +15,7 @@ function getCurrentUser() {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/frontend/login.html';
+    window.location.href = 'index.html'; // Về trang chủ (landing page)
 }
 
 // Check authentication and update navbar
@@ -56,7 +56,7 @@ function checkAuth() {
 function requireAuth() {
     if (!isAuthenticated()) {
         alert('Vui lòng đăng nhập để tiếp tục');
-        window.location.href = '/login.html';
+        window.location.href = 'login.html';
         return false;
     }
     return true;
