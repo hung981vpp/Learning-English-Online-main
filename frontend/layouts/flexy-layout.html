@@ -441,7 +441,10 @@
                 return '/pages/course-detail-content.html'; // File nội dung cho trang chi tiết
             }
             if (path.endsWith('/pages/lesson.html')) {
-            return '/pages/lesson-content.html'; // File nội dung cho trang bài học
+                return '/pages/lesson-content.html'; // File nội dung cho trang bài học
+            }
+            if (path.endsWith('/pages/quiz.html')) {
+                return '/pages/quiz-content.html'; // File nội dung cho trang quiz
             }
             if (path.endsWith('/student/profile.html')) {
                 return '/student/profile-content.html'; // Cần tạo file này
@@ -535,6 +538,11 @@
                     <span class="hide-menu">Tìm khóa học</span>
                 </a>
             </li>
+            <li class="sidebar-item ${isActive('/pages/quiz') ? 'active' : ''}">
+                  <a class="sidebar-link" href="/pages/quiz.html" aria-expanded="false">
+                    <span><i class="ti ti-file-pencil"></i></span><span class="hide-menu">Bài kiểm tra</span>
+                  </a>
+                </li>
             <li class="nav-small-cap">
                 <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                 <span class="hide-menu">Tài khoản</span>

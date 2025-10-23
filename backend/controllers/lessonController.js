@@ -14,7 +14,8 @@ class LessonController {
                 SELECT 
                     bh.MaBaiHoc,
                     bh.TenBaiHoc,
-                    bh.MoTa as NoiDung,
+                    bh.MoTa,
+                    bh.NoiDung,
                     bh.ThoiLuong,
                     bh.VideoUrl,
                     bh.AudioUrl,

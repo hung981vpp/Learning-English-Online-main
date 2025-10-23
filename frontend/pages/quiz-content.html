@@ -1,0 +1,175 @@
+<style>
+.body-wrapper {
+    padding-top: 0 !important;
+}
+.container-fluid {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 100px !important; padding-top: 0 !important;">
+    <!-- Page Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-3" style="margin-top: 0 !important;">
+        <div class="card-body px-4 py-2">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-1">Bài kiểm tra</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a class="text-muted" href="dashboard.html">Trang chủ</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Bài kiểm tra</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="text-center mb-n5">
+                        <img src="../assets/images/breadcrumb/ChatBc.png" alt="" class="img-fluid mb-n4" style="max-height: 70px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Card -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Loại bài kiểm tra</label>
+                    <select class="form-select" id="filter-type">
+                        <option value="">Tất cả</option>
+                        <option value="placement_test">Kiểm tra đầu vào</option>
+                        <option value="progress_test">Kiểm tra tiến độ</option>
+                        <option value="mock_test">Đề thi mô phỏng</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Cấp độ</label>
+                    <select class="form-select" id="filter-level">
+                        <option value="">Tất cả</option>
+                        <option value="A1">A1 - Sơ cấp</option>
+                        <option value="A2">A2 - Cơ bản</option>
+                        <option value="B1">B1 - Trung cấp</option>
+                        <option value="B2">B2 - Trung cao cấp</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">&nbsp;</label>
+                    <button class="btn btn-primary w-100" onclick="loadQuizzes()">
+                        <i class="ti ti-filter"></i> Lọc
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tests Grid -->
+    <div class="row" id="quizzes-container">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function loadQuizzes() {
+    try {
+        const response = await apiCall('/api/quizzes');
+        
+        if (response.success) {
+            displayQuizzes(response.data);
+        } else {
+            throw new Error(response.message);
+        }
+    } catch (error) {
+        console.error('Load quizzes error:', error);
+        document.getElementById('quizzes-container').innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <i class="ti ti-alert-circle"></i> Không thể tải danh sách bài kiểm tra: ${error.message}
+                </div>
+            </div>
+        `;
+    }
+}
+
+function displayQuizzes(quizzes) {
+    const container = document.getElementById('quizzes-container');
+    
+    if (!quizzes || quizzes.length === 0) {
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="ti ti-clipboard-off" style="font-size: 64px; color: #ccc;"></i>
+                        <h5 class="mt-3">Không có bài kiểm tra nào</h5>
+                        <p class="text-muted">Hiện tại chưa có bài kiểm tra khả dụng</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = quizzes.map(quiz => `
+        <div class="col-sm-6 col-lg-4">
+            <div class="card hover-img">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary-subtle text-primary rounded-3 py-1 px-2">
+                            ${getQuizTypeName(quiz.LoaiBaiKiemTra)}
+                        </span>
+                        ${quiz.CapDo ? `<span class="badge bg-secondary-subtle text-secondary rounded-3 py-1 px-2 ms-2">${quiz.CapDo}</span>` : ''}
+                    </div>
+                    
+                    <h5 class="card-title fw-semibold mb-2">${quiz.TenBaiKiemTra}</h5>
+                    <p class="card-text text-dark mb-3" style="min-height: 48px;">
+                        ${quiz.MoTa || 'Không có mô tả'}
+                    </p>
+                    
+                    <div class="d-flex justify-content-between text-muted mb-3">
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-file-text fs-5 me-1"></i>
+                            <span class="fs-3">${quiz.SoCauHoi || 0} câu</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-clock fs-5 me-1"></i>
+                            <span class="fs-3">${quiz.ThoiGianLamBai || 0} phút</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="ti ti-trophy fs-5 me-1"></i>
+                            <span class="fs-3">${quiz.DiemToiDa || 0} điểm</span>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" onclick="startQuiz(${quiz.MaBaiKiemTra})">
+                        <i class="ti ti-play"></i> Bắt đầu làm bài
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function getQuizTypeName(type) {
+    const names = {
+        'placement_test': 'Kiểm tra đầu vào',
+        'progress_test': 'Kiểm tra tiến độ',
+        'mock_test': 'Đề thi mô phỏng'
+    };
+    return names[type] || 'Khác';
+}
+
+function startQuiz(quizId) {
+    window.location.href = `quiz-detail.html?id=${quizId}`;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(loadQuizzes, 100);
+});
+</script>
