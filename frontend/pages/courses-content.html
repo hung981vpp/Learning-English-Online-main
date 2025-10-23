@@ -1,0 +1,198 @@
+<div class="container-fluid px-4 py-3">
+    <h5 class="fw-semibold mb-4">Tìm kiếm Khóa học</h5>
+
+    <div class="row mb-4 g-3">
+        <div class="col-md-5">
+            <div class="input-group">
+                <span class="input-group-text"><i class="ti ti-search"></i></span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Tìm theo tên khóa học...">
+            </div>
+        </div>
+        <div class="col-md-4">
+            <select class="form-select" id="categoryFilter">
+                <option value="">Tất cả danh mục</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select" id="levelFilter">
+                <option value="">Tất cả cấp độ</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="B1">B1</option>
+                <option value="B2">B2</option>
+            </select>
+        </div>
+    </div>
+
+    <div id="courses-loader"></div>
+    <div class="row g-4" id="courses-list"></div>
+</div>
+
+<script>
+    // Helper functions
+    function truncateText(text, maxLength) {
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+
+    function formatMinutes(minutes) {
+        if (!minutes) return '0 phút';
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        if (hours > 0) {
+            return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+        }
+        return `${mins}m`;
+    }
+
+    function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    }
+
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    // Main variables
+    const searchInput = document.getElementById('searchInput');
+    const categoryFilter = document.getElementById('categoryFilter');
+    const levelFilter = document.getElementById('levelFilter');
+    const coursesListEl = document.getElementById('courses-list');
+
+    let currentSearchParams = {
+        search: '',
+        category: '',
+        level: ''
+    };
+
+    /**
+     * Tải và hiển thị danh sách khóa học dựa trên bộ lọc
+     */
+    async function loadCourses(params = {}) {
+        const currentLoaderEl = document.getElementById('courses-loader');
+        if (currentLoaderEl) {
+            currentLoaderEl.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+        }
+
+        try {
+            const data = await API.courses.getAll(params);
+
+            if (data.success && data.data.length > 0) {
+                let html = '';
+                data.data.forEach(course => {
+                    const imageUrl = (course.AnhBia || '/assets/images/placeholder.jpg').replace('frontend/', '');
+
+                    html += `
+                        <div class="col-sm-6 col-lg-4 d-flex align-items-stretch">
+                            <div class="card overflow-hidden rounded-2 w-100 shadow-sm">
+                                <div class="position-relative">
+                                    <a href="/pages/course-detail.html?id=${course.MaKhoaHoc}">
+                                        <img src="${imageUrl}" 
+                                            class="card-img-top rounded-0" 
+                                            alt="${course.TenKhoaHoc}" 
+                                            style="height: 400px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                <div class="card-body pt-3 p-4 d-flex flex-column">
+                                    <h6 class="fw-semibold fs-4 mb-2">${truncateText(course.TenKhoaHoc, 50)}</h6>
+                                    <p class="text-muted mb-2 small">GV: ${course.TenGiangVien || 'N/A'}</p>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <span class="badge bg-primary-subtle text-primary fw-semibold">
+                                            Trình độ: ${course.CapDoCEFR}
+                                        </span>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <i class="ti ti-star text-warning" style="font-size: 1.1rem;"></i> 
+                                            <span class="fw-semibold">${(course.DiemTrungBinh || 0).toFixed(1)}</span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3 mb-3 text-muted small">
+                                        <span class="d-flex align-items-center gap-1">
+                                            <i class="ti ti-clock"></i> ${formatMinutes(course.ThoiLuongUocTinh || 0)}
+                                        </span>
+                                        <span class="d-flex align-items-center gap-1">
+                                            <i class="ti ti-users"></i> ${course.LuotDangKy || 0}
+                                        </span>
+                                    </div>
+                                    
+                                    <a href="/pages/course-detail.html?id=${course.MaKhoaHoc}" 
+                                    class="btn btn-primary w-100 mt-auto">
+                                        Xem chi tiết
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                });
+                coursesListEl.innerHTML = html;
+            } else {
+                coursesListEl.innerHTML = '<div class="col-12"><div class="alert alert-info text-center">Không tìm thấy khóa học nào phù hợp.</div></div>';
+            }
+        } catch (error) {
+            coursesListEl.innerHTML = `<div class="col-12"><div class="alert alert-danger">Không thể tải danh sách khóa học. ${error.message}</div></div>`;
+            console.error("Load courses error:", error);
+        } finally {
+            if (currentLoaderEl) currentLoaderEl.innerHTML = '';
+        }
+    }
+
+    /**
+     * Tải danh mục cho bộ lọc
+     */
+    async function loadCategoriesFilter() {
+        try {
+            const data = await API.courses.getCategories();
+            if (data.success && data.data) {
+                data.data.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.MaDanhMuc;
+                    option.textContent = cat.TenDanhMuc;
+                    categoryFilter.appendChild(option);
+                });
+
+                const urlCategory = getQueryParam('category');
+                if (urlCategory) {
+                    categoryFilter.value = urlCategory;
+                    currentSearchParams.category = urlCategory;
+                }
+            }
+        } catch (error) {
+            console.error("Error loading categories filter:", error);
+        }
+    }
+
+    // Event Listeners
+    const debouncedSearch = debounce(() => {
+        currentSearchParams.search = searchInput.value;
+        loadCourses(currentSearchParams);
+    }, 500);
+
+    searchInput.addEventListener('input', debouncedSearch);
+
+    categoryFilter.addEventListener('change', () => {
+        currentSearchParams.category = categoryFilter.value;
+        loadCourses(currentSearchParams);
+    });
+
+    levelFilter.addEventListener('change', () => {
+        currentSearchParams.level = levelFilter.value;
+        loadCourses(currentSearchParams);
+    });
+
+    // Initial Load
+    async function initializePage() {
+        await loadCategoriesFilter();
+        loadCourses(currentSearchParams);
+    }
+
+    initializePage();
+</script>

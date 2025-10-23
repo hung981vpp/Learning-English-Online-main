@@ -1,0 +1,94 @@
+<div class="container-fluid px-4 py-3">
+    <div class="card">
+        <div class="card-body">
+            <h5 class="fw-semibold mb-4">Khóa học của tôi</h5>
+            
+            <div id="my-courses-loader"></div>
+            
+            <div class="row g-4" id="my-courses-list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadMyCourses() {
+        const listEl = document.getElementById('my-courses-list');
+        const loaderEl = document.getElementById('my-courses-loader');
+        
+        if (loaderEl) {
+            loaderEl.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+        }
+
+        try {
+            const data = await API.courses.getMyCourses();
+
+            if (data.success && data.data.length > 0) {
+                let html = '';
+                data.data.forEach(course => {
+                    const imageUrl = (course.AnhBia || '/assets/images/placeholder.jpg').replace('frontend/', '');
+                    const progress = parseFloat(course.TienDo || 0);
+
+                    html += `
+                        <div class="col-sm-6 col-xl-4 d-flex align-items-stretch mb-4">
+                            <div class="card overflow-hidden rounded-2 w-100">
+                                <div class="position-relative">
+                                    <a href="/pages/course-detail.html?id=${course.MaKhoaHoc}">
+										
+                                        <img src="${imageUrl}" class="card-img-top rounded-0" alt="${course.TenKhoaHoc}" style="height: 180px; object-fit: cover;">
+                                    </a>
+                                </div>
+                                <div class="card-body pt-3 p-4 d-flex flex-column">
+                                    <h6 class="fw-semibold fs-4 mb-2">${truncateText(course.TenKhoaHoc, 50)}</h6>
+                                    <div class="d-flex align-items-center justify-content-between mb-3">
+                                        <span class="badge bg-light-primary text-primary fw-semibold fs-2">Trình độ: ${course.CapDoCEFR}</span>
+                                    </div>
+
+                                    <div class="progress mb-2" style="height: 8px;">
+                                        <div class="progress-bar" role="progressbar" style="width: ${progress}%;" 
+                                             aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <small class="text-muted mb-3 d-block">Hoàn thành: ${progress.toFixed(0)}%</small>
+                                    
+                                    <a href="/pages/course-detail.html?id=${course.MaKhoaHoc}" class="btn btn-primary w-100 mt-auto">
+                                        ${progress > 0 ? 'Tiếp tục học' : 'Bắt đầu học'}
+                                    </a>
+                                    
+                                    <small class="text-muted text-center mt-2 d-block">
+                                        ĐK: ${formatDate(course.NgayDangKy)} | Lần cuối: ${formatDate(course.NgayTruyCap)}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                listEl.innerHTML = html;
+            } else {
+                listEl.innerHTML = '<div class="col-12"><p class="text-center lead mt-4">Bạn chưa đăng ký khóa học nào. <a href="/pages/courses.html">Khám phá các khóa học!</a></p></div>';
+            }
+        } catch (error) {
+            console.error('Error loading courses:', error);
+            listEl.innerHTML = `<div class="col-12"><div class="alert alert-danger">Không thể tải danh sách khóa học. ${error.message}</div></div>`;
+        } finally {
+            if (loaderEl) loaderEl.innerHTML = '';
+        }
+    }
+
+    // Helper functions
+    function truncateText(text, maxLength) {
+        if (!text) return '';
+        return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
+    }
+
+    function formatDate(dateString) {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Chạy khi script load
+    loadMyCourses();
+</script>

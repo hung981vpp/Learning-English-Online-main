@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Đang tải...</title>
+    <script>
+        async function loadLayout() {
+            try {
+                // Đường dẫn tương đối từ pages/ đến layouts/
+                const response = await fetch('../layouts/flexy-layout.html'); 
+                if (!response.ok) throw new Error('Không tìm thấy layout');
+                const layoutHtml = await response.text();
+                document.open();
+                document.write(layoutHtml);
+                document.close();
+            } catch (error) {
+                console.error("Lỗi tải layout:", error);
+                document.body.innerHTML = '<h1>Lỗi tải giao diện trang</h1><p>Vui lòng thử lại sau.</p>';
+            }
+        }
+        loadLayout();
+    </script>
+    <style>body { display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }</style>
+</head>
+<body>
+    <p>Đang tải giao diện...</p> 
+</body>
+</html>

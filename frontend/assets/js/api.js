@@ -104,25 +104,29 @@ const API = {
             apiCall(`/courses/${courseId}/reviews`),
 
         getCategories: () =>
-            apiCall('/courses/categories')
+            apiCall('/courses/categories'),
+
+        // Lấy đánh giá khóa học
+        getCourseReviews: (courseId) => 
+            apiCall(`/courses/${courseId}/reviews`),
+        
+        // Gửi đánh giá
+        submitReview: (courseId, reviewData) =>
+            apiCall(`/courses/${courseId}/reviews`, {
+                method: 'POST',
+                body: JSON.stringify(reviewData)
+            })
     },
 
     // Lessons
     lessons: {
-        getById: (id) =>
-            apiCall(`/lessons/${id}`),
-
-        start: (lessonId) =>
-            apiCall('/lessons/start', {
-                method: 'POST',
-                body: JSON.stringify({ lessonId })
-            }),
-
-        complete: (lessonId, timeSpent) =>
-            apiCall('/lessons/complete', {
-                method: 'POST',
-                body: JSON.stringify({ lessonId, timeSpent })
-            })
+        getById: (id) => apiCall(`/lessons/${id}`),
+        getByCourse: (courseId) => apiCall(`/lessons/course/${courseId}`),
+        markComplete: (id) => apiCall(`/lessons/${id}/complete`, { method: 'POST' }),
+        saveNotes: (id, notes) => apiCall(`/lessons/${id}/notes`, {
+            method: 'POST',
+            body: JSON.stringify({ notes })
+        })
     },
 
     // Quiz

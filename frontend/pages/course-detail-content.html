@@ -1,0 +1,619 @@
+<div class="container-fluid px-4 py-3">
+    <div id="course-detail-loader"></div>
+
+    <div id="course-detail-content" style="display: none;"> 
+        <div class="row g-4">
+            <!-- Cột chính - Thông tin khóa học -->
+            <div class="col-lg-8">
+                <!-- Card thông tin khóa học -->
+                <div class="card mb-4">
+                    <img src="" class="card-img-top" alt="Course Image" id="course-image" 
+                         style="max-height: 400px; object-fit: cover;"
+                         onerror="this.src='/assets/images/placeholder.jpg'">
+                    <div class="card-body">
+                        <h3 class="fw-semibold mb-3" id="course-title"></h3>
+                        
+                        <div class="d-flex align-items-center gap-4 mb-3 flex-wrap text-muted small">
+                            <span id="course-rating"><i class="ti ti-star text-warning"></i> N/A</span>
+                            <span><i class="ti ti-users"></i> <span id="course-enrollments">0</span> học viên</span>
+                            <span><i class="ti ti-notebook"></i> <span id="course-lessons-count">0</span> bài học</span>
+                            <span><i class="ti ti-clock"></i> <span id="course-duration">N/A</span></span>
+                            <span>Trình độ: <strong id="course-level">N/A</strong></span>
+                        </div>
+                        
+                        <p class="mb-4" id="course-description"></p>
+                        
+                        <hr>
+                        
+                        <h5 class="fw-semibold mb-3">Nội dung khóa học</h5>
+                        <div class="accordion" id="lessonsAccordion"></div>
+                    </div>
+                </div>
+                
+                <!-- Card đánh giá -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <h5 class="fw-semibold mb-0">Đánh giá từ học viên</h5>
+                            <button class="btn btn-sm btn-primary" id="write-review-btn" style="display: none;">
+                                <i class="ti ti-edit"></i> Viết đánh giá
+                            </button>
+                        </div>
+                        
+                        <!-- Form viết đánh giá -->
+                        <div id="review-form" class="mb-4" style="display: none;">
+                            <div class="card bg-light border-0">
+                                <div class="card-body">
+                                    <h6 class="fw-semibold mb-3">Đánh giá của bạn</h6>
+                                    <div class="mb-3">
+                                        <label class="form-label">Điểm số (1-5 sao)</label>
+                                        <div class="d-flex gap-2">
+                                            <button type="button" class="btn btn-outline-warning star-btn" data-rating="1">
+                                                <i class="ti ti-star"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning star-btn" data-rating="2">
+                                                <i class="ti ti-star"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning star-btn" data-rating="3">
+                                                <i class="ti ti-star"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-outline-warning star-btn" data-rating="4">
+                                                <i class="ti ti-star"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-warning star-btn" data-rating="5">
+                                                <i class="ti ti-star"></i>
+                                            </button>
+                                        </div>
+                                        <input type="hidden" id="review-rating" value="5">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nhận xét của bạn</label>
+                                        <textarea class="form-control" id="review-comment" rows="4" 
+                                                  placeholder="Chia sẻ trải nghiệm của bạn về khóa học này..."></textarea>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary" id="submit-review-btn">
+                                            <i class="ti ti-send"></i> Gửi đánh giá
+                                        </button>
+                                        <button class="btn btn-secondary" id="cancel-review-btn">Hủy</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Danh sách đánh giá -->
+                        <div id="course-reviews">
+                            <div class="text-center p-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột sidebar - Giảng viên và nút đăng ký -->
+            <div class="col-lg-4">
+                <div class="card sticky-top" style="top: 90px; z-index: 10;">
+                    <div class="card-body">
+                        <h5 class="fw-semibold mb-3">Thông tin giảng viên</h5>
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="/assets/images/profile/user-1.jpg" alt="Teacher Avatar" 
+                                 width="50" height="50" class="rounded-circle me-3"
+                                 style="object-fit: cover;">
+                            <div>
+                                <h6 class="mb-0 fw-semibold" id="teacher-name">N/A</h6>
+                                <small class="text-muted" id="teacher-email">N/A</small>
+                            </div>
+                        </div>
+                        
+                        <hr>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary btn-lg" id="enroll-button">
+                                <span class="spinner-border spinner-border-sm me-2" style="display: none;"></span>
+                                <span id="enroll-text">Tải...</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Sticky sidebar */
+    .sticky-top {
+        position: sticky;
+        top: 80px;
+        z-index: 100;
+    }
+    
+    @media (max-width: 991.98px) {
+        .sticky-top {
+            position: relative;
+            top: 0;
+        }
+    }
+    
+    /* Accordion - thời gian thẳng hàng */
+    .accordion-button {
+        padding-right: 3rem;
+    }
+    
+    .lesson-duration {
+        min-width: 60px;
+        text-align: right;
+        flex-shrink: 0;
+    }
+    
+    /* Review items */
+    .review-item {
+        padding: 1.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+    
+    .review-item:last-child {
+        border-bottom: none;
+    }
+    
+    .review-item:first-child {
+        padding-top: 0;
+    }
+    
+    /* Star buttons */
+    .star-btn {
+        width: 45px;
+        height: 45px;
+        padding: 0;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    
+    .star-btn:hover {
+        transform: scale(1.1);
+    }
+    
+    .star-btn i {
+        font-size: 1.3rem;
+    }
+    
+    .star-btn.btn-warning {
+        color: #fff !important;
+        background-color: #ffc107 !important;
+        border-color: #ffc107 !important;
+    }
+    
+    /* Star icons in reviews */
+    .ti-star, .ti-star-filled {
+        font-size: 1.1rem;
+    }
+    
+    .ti-star-filled {
+        color: #ffc107;
+    }
+    
+    .ti-star.text-muted {
+        color: #dee2e6 !important;
+    }
+    
+    /* Course image */
+    .card-img-top {
+        transition: opacity 0.3s;
+    }
+    
+    .card-img-top:hover {
+        opacity: 0.95;
+    }
+</style>
+
+<script>
+    // ==================== HELPER FUNCTIONS ====================
+    
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    function formatMinutes(minutes) {
+        if (!minutes || minutes === 0) return '0 phút';
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        if (hours > 0) {
+            return mins > 0 ? `${hours}h ${mins}m` : `${hours}h`;
+        }
+        return `${mins}m`;
+    }
+
+    function generateStarRating(rating) {
+        const roundedRating = Math.round(rating * 2) / 2;
+        let html = '<div class="d-inline-flex gap-1">';
+        
+        for (let i = 1; i <= 5; i++) {
+            if (i <= roundedRating) {
+                html += '<i class="ti ti-star-filled text-warning"></i>';
+            } else {
+                html += '<i class="ti ti-star text-muted"></i>';
+            }
+        }
+        
+        html += `</div> <span class="ms-1 fw-semibold">${rating.toFixed(1)}</span>`;
+        return html;
+    }
+    
+    function generateStarIcons(rating) {
+        let html = '';
+        for (let i = 1; i <= 5; i++) {
+            if (i <= rating) {
+                html += '<i class="ti ti-star-filled text-warning"></i>';
+            } else {
+                html += '<i class="ti ti-star text-muted"></i>';
+            }
+        }
+        return html;
+    }
+
+    function showLoading(elementId) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"><span class="visually-hidden">Loading...</span></div></div>';
+        }
+    }
+
+    function showError(elementId, message) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.innerHTML = `<div class="alert alert-danger mx-4 my-4"><i class="ti ti-alert-circle me-2"></i>${message}</div>`;
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const bgClass = type === 'success' ? 'bg-success' : (type === 'danger' ? 'bg-danger' : 'bg-warning');
+        const toastId = 'toast-' + Date.now();
+        
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+        }
+        
+        const toastHTML = `
+            <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0 show" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `;
+        
+        container.insertAdjacentHTML('beforeend', toastHTML);
+        
+        setTimeout(() => {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    }
+
+    // ==================== MAIN VARIABLES ====================
+    
+    const courseId = getQueryParam('id');
+    const loaderEl = document.getElementById('course-detail-loader');
+    const contentEl = document.getElementById('course-detail-content');
+    const enrollButton = document.getElementById('enroll-button');
+    const enrollSpinner = enrollButton.querySelector('.spinner-border');
+    const enrollText = document.getElementById('enroll-text');
+    let isEnrolled = false;
+
+    // ==================== LOAD COURSE DETAIL ====================
+    
+    async function loadCourseDetail() {
+        if (!courseId) {
+            showError('course-detail-loader', 'ID khóa học không hợp lệ.');
+            return;
+        }
+        
+        showLoading('course-detail-loader');
+        contentEl.style.display = 'none';
+
+        try {
+            const data = await API.courses.getById(courseId);
+
+            if (data.success) {
+                const course = data.data;
+
+                document.title = `${course.TenKhoaHoc} - Learning English`;
+
+                document.getElementById('course-image').src = (course.AnhBia || '/assets/images/placeholder.jpg').replace('frontend/', '');
+                document.getElementById('course-title').textContent = course.TenKhoaHoc;
+                document.getElementById('course-rating').innerHTML = generateStarRating(course.DiemTrungBinh || 0);
+                document.getElementById('course-enrollments').textContent = course.LuotDangKy || 0;
+                document.getElementById('course-lessons-count').textContent = course.baiHoc?.length || 0;
+                document.getElementById('course-duration').textContent = formatMinutes(course.ThoiLuongUocTinh || 0);
+                document.getElementById('course-level').textContent = course.CapDoCEFR || 'N/A';
+                document.getElementById('course-description').innerHTML = course.MoTa || 'Chưa có mô tả.';
+
+                document.getElementById('teacher-name').textContent = course.TenGiangVien || 'N/A';
+                document.getElementById('teacher-email').textContent = course.EmailGiangVien || '';
+
+                const lessonsAccordion = document.getElementById('lessonsAccordion');
+                if (course.baiHoc && course.baiHoc.length > 0) {
+                    let lessonsHtml = '';
+                    course.baiHoc.forEach((lesson, index) => {
+                        let iconClass = 'ti-file-text';
+                        if (lesson.LoaiBaiHoc === 'video') iconClass = 'ti-video';
+                        if (lesson.LoaiBaiHoc === 'quiz') iconClass = 'ti-file-pencil';
+
+                        lessonsHtml += `
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapse${lesson.MaBaiHoc}">
+                                        <div class="d-flex w-100 align-items-center justify-content-between pe-3">
+                                            <div class="d-flex align-items-center" style="flex: 1; min-width: 0;">
+                                                <span class="me-2"><i class="ti ${iconClass}"></i></span>
+                                                <span style="overflow: hidden; text-overflow: ellipsis;">
+                                                    <strong>Bài ${index + 1}:</strong> ${lesson.TenBaiHoc}
+                                                </span>
+                                            </div>
+                                            <span class="lesson-duration text-muted small ms-3">
+                                                ${formatMinutes(lesson.ThoiLuong || 0)}
+                                            </span>
+                                        </div>
+                                    </button>
+                                </h2>
+                                <div id="collapse${lesson.MaBaiHoc}" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <p class="mb-2">${lesson.MoTa || 'Chưa có mô tả.'}</p>
+                                        <a href="#" onclick="viewLesson(${lesson.MaBaiHoc}); return false;" 
+                                           class="btn btn-sm btn-outline-primary view-lesson-btn" style="display: none;">
+                                            <i class="ti ti-play"></i> Vào học
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    lessonsAccordion.innerHTML = lessonsHtml;
+                } else {
+                    lessonsAccordion.innerHTML = '<p class="text-muted p-3">Chưa có bài học nào cho khóa học này.</p>';
+                }
+
+                await checkEnrollmentStatus();
+                await loadCourseReviews();
+                initReviewForm();
+
+                contentEl.style.display = 'block';
+                loaderEl.innerHTML = '';
+
+            } else {
+                showError('course-detail-loader', data.message || 'Không thể tải chi tiết khóa học.');
+            }
+        } catch (error) {
+            showError('course-detail-loader', `Lỗi khi tải khóa học: ${error.message}`);
+            console.error("Load course detail error:", error);
+        }
+    }
+    
+    // ==================== CHECK ENROLLMENT ====================
+    
+    async function checkEnrollmentStatus() {
+        const user = getCurrentUser();
+        if (!user) {
+            enrollText.textContent = 'Đăng ký học';
+            enrollButton.disabled = false;
+            enrollSpinner.style.display = 'none';
+            enrollButton.onclick = handleEnroll;
+            return;
+        }
+
+        try {
+            const myCoursesData = await API.courses.getMyCourses();
+            if (myCoursesData.success) {
+                const enrolledCourse = myCoursesData.data.find(c => c.MaKhoaHoc == courseId);
+                if (enrolledCourse) {
+                    isEnrolled = true;
+                    enrollText.textContent = 'Vào học';
+                    enrollButton.onclick = () => { alert('Chức năng học đang phát triển...'); };
+                    document.querySelectorAll('.view-lesson-btn').forEach(btn => btn.style.display = 'inline-block');
+                } else {
+                    isEnrolled = false;
+                    enrollText.textContent = 'Đăng ký học';
+                    enrollButton.onclick = handleEnroll;
+                }
+            }
+        } catch (error) {
+            console.error("Error checking enrollment:", error);
+            enrollText.textContent = 'Đăng ký học';
+            enrollButton.onclick = handleEnroll;
+        } finally {
+            enrollButton.disabled = false;
+            enrollSpinner.style.display = 'none';
+        }
+    }
+
+    // ==================== HANDLE ENROLL ====================
+    
+    async function handleEnroll() {
+        if (!requireAuth()) return;
+
+        enrollButton.disabled = true;
+        enrollSpinner.style.display = 'inline-block';
+        
+        try {
+            const data = await API.courses.enroll(courseId);
+            if (data.success) {
+                showToast('Đăng ký khóa học thành công!', 'success');
+                isEnrolled = true;
+                enrollText.textContent = 'Vào học';
+                enrollButton.onclick = () => { alert('Chức năng học đang phát triển...'); };
+                document.querySelectorAll('.view-lesson-btn').forEach(btn => btn.style.display = 'inline-block');
+                document.getElementById('write-review-btn').style.display = 'inline-block';
+            } else {
+                showToast(`Đăng ký thất bại: ${data.message}`, 'danger');
+            }
+        } catch (error) {
+            showToast(`Lỗi đăng ký: ${error.message}`, 'danger');
+            console.error("Enroll error:", error);
+        } finally {
+            enrollButton.disabled = false;
+            enrollSpinner.style.display = 'none';
+        }
+    }
+    
+    // ==================== REVIEWS ====================
+    
+    async function loadCourseReviews() {
+        const reviewsEl = document.getElementById('course-reviews');
+        
+        try {
+            const data = await API.courses.getCourseReviews(courseId);
+            
+            if (data.success && data.data && data.data.length > 0) {
+                let html = '';
+                data.data.forEach(review => {
+                    const date = new Date(review.NgayDanhGia).toLocaleDateString('vi-VN', {
+                        day: 'numeric',
+                        month: 'long',
+                        year: 'numeric'
+                    });
+                    
+                    html += `
+                        <div class="review-item">
+                            <div class="d-flex align-items-start gap-3">
+                                <img src="${review.AnhDaiDien || '/assets/images/profile/user-1.jpg'}" 
+                                     alt="${review.HoTen}" 
+                                     width="50" 
+                                     height="50" 
+                                     class="rounded-circle flex-shrink-0"
+                                     style="object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h6 class="mb-1 fw-semibold">${review.HoTen}</h6>
+                                            <small class="text-muted">${date}</small>
+                                        </div>
+                                        <div class="text-end ms-3 flex-shrink-0">
+                                            <div class="d-flex gap-1 mb-1">
+                                                ${generateStarIcons(review.DiemDanhGia)}
+                                            </div>
+                                            <small class="text-muted fw-semibold">${review.DiemDanhGia}/5</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0 text-secondary">${review.NhanXet || ''}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                reviewsEl.innerHTML = html;
+            } else {
+                reviewsEl.innerHTML = '<p class="text-muted text-center py-4">Chưa có đánh giá nào cho khóa học này.</p>';
+            }
+        } catch (error) {
+            console.error('Error loading reviews:', error);
+            reviewsEl.innerHTML = '<p class="text-muted text-center py-4">Không thể tải đánh giá.</p>';
+        }
+    }
+    
+    function initReviewForm() {
+        const writeReviewBtn = document.getElementById('write-review-btn');
+        const reviewForm = document.getElementById('review-form');
+        const cancelReviewBtn = document.getElementById('cancel-review-btn');
+        const submitReviewBtn = document.getElementById('submit-review-btn');
+        const starBtns = document.querySelectorAll('.star-btn');
+        
+        if (isEnrolled) {
+            writeReviewBtn.style.display = 'inline-block';
+        }
+        
+        writeReviewBtn.addEventListener('click', () => {
+            reviewForm.style.display = reviewForm.style.display === 'none' ? 'block' : 'none';
+        });
+        
+        cancelReviewBtn.addEventListener('click', () => {
+            reviewForm.style.display = 'none';
+            document.getElementById('review-comment').value = '';
+            document.getElementById('review-rating').value = '5';
+            updateStarButtons(5);
+        });
+        
+        starBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const rating = parseInt(btn.dataset.rating);
+                document.getElementById('review-rating').value = rating;
+                updateStarButtons(rating);
+            });
+        });
+        
+        submitReviewBtn.addEventListener('click', async () => {
+            const rating = parseInt(document.getElementById('review-rating').value);
+            const comment = document.getElementById('review-comment').value.trim();
+            
+            if (!comment) {
+                showToast('Vui lòng nhập nhận xét', 'warning');
+                return;
+            }
+            
+            try {
+                submitReviewBtn.disabled = true;
+                submitReviewBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang gửi...';
+                
+                const data = await API.courses.submitReview(courseId, {
+                    diemDanhGia: rating,
+                    nhanXet: comment
+                });
+                
+                if (data.success) {
+                    showToast('Đánh giá thành công!', 'success');
+                    reviewForm.style.display = 'none';
+                    document.getElementById('review-comment').value = '';
+                    document.getElementById('review-rating').value = '5';
+                    updateStarButtons(5);
+                    loadCourseReviews();
+                } else {
+                    showToast(data.message || 'Không thể gửi đánh giá', 'danger');
+                }
+            } catch (error) {
+                console.error('Submit review error:', error);
+                showToast('Lỗi khi gửi đánh giá', 'danger');
+            } finally {
+                submitReviewBtn.disabled = false;
+                submitReviewBtn.innerHTML = '<i class="ti ti-send"></i> Gửi đánh giá';
+            }
+        });
+    }
+    
+    function updateStarButtons(rating) {
+        const starBtns = document.querySelectorAll('.star-btn');
+        starBtns.forEach((btn, index) => {
+            const btnRating = parseInt(btn.dataset.rating);
+            if (btnRating <= rating) {
+                btn.classList.remove('btn-outline-warning');
+                btn.classList.add('btn-warning');
+            } else {
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-outline-warning');
+            }
+        });
+    }
+    
+    function viewLesson(lessonId) {
+        if (isEnrolled) {
+            window.location.href = `/pages/lesson.html?id=${lessonId}`;
+        } else {
+            showToast('Vui lòng đăng ký khóa học để xem bài học.', 'warning');
+        }
+    }
+
+    // ==================== INITIALIZE ====================
+    
+    loadCourseDetail();
+</script>

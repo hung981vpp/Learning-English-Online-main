@@ -56,7 +56,7 @@ function checkAuth() {
 function requireAuth() {
     if (!isAuthenticated()) {
         alert('Vui lòng đăng nhập để tiếp tục');
-        window.location.href = 'login.html';
+        window.location.href = './login.html';
         return false;
     }
     return true;
@@ -64,16 +64,16 @@ function requireAuth() {
 
 // Redirect if already authenticated (for login/register pages)
 function redirectIfAuthenticated() {
+    // Không cần đợi DOM vì chỉ check localStorage
     if (isAuthenticated()) {
         const user = getCurrentUser();
         if (user && user.isAdmin) {
-            window.location.href = '/admin/dashboard.html';
+            window.location.replace('admin/dashboard.html');
         } else {
-            window.location.href = '/index.html';
+            window.location.replace('index.html');
         }
     }
 }
-
 // Check if user is admin
 function isAdmin() {
     const user = getCurrentUser();

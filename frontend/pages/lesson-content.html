@@ -1,0 +1,518 @@
+<div class="container-fluid px-4 py-3">
+    <div id="lesson-loader"></div>
+
+    <div id="lesson-content" style="display: none;">
+        <div class="row g-4">
+            <!-- Cột chính - Video và nội dung -->
+            <div class="col-lg-9">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-3">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/pages/courses.html">Khóa học</a></li>
+                        <li class="breadcrumb-item"><a href="#" id="breadcrumb-course">...</a></li>
+                        <li class="breadcrumb-item active" id="breadcrumb-lesson" aria-current="page">...</li>
+                    </ol>
+                </nav>
+
+                <!-- Card Video/Content Player -->
+                <div class="card mb-4">
+                    <div class="ratio ratio-16x9" style="background: #000;" id="media-container">
+                        <!-- Content will be dynamically loaded here -->
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h3 class="fw-semibold mb-2" id="lesson-title">Đang tải...</h3>
+                                <p class="text-muted mb-0">
+                                    <i class="ti ti-clock"></i> <span id="lesson-duration">0 phút</span>
+                                </p>
+                            </div>
+                            <button class="btn btn-success" id="complete-btn">
+                                <i class="ti ti-check"></i> Hoàn thành
+                            </button>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div id="lesson-description">
+                            <p class="text-muted">Đang tải mô tả...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Notes/Comments -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="fw-semibold mb-3">Ghi chú của bạn</h5>
+                        <textarea class="form-control mb-3" id="lesson-notes" rows="4" 
+                                  placeholder="Viết ghi chú cho bài học này..."></textarea>
+                        <button class="btn btn-primary" id="save-notes-btn">
+                            <i class="ti ti-device-floppy"></i> Lưu ghi chú
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cột sidebar - Danh sách bài học -->
+            <div class="col-lg-3">
+                <!-- Sticky card -->
+                <div class="card mb-4" id="lessons-sidebar">
+                    <div class="card-body">
+                        <h5 class="fw-semibold mb-3">Nội dung khóa học</h5>
+                        <div id="lessons-list">
+                            <div class="text-center p-3">
+                                <div class="spinner-border spinner-border-sm text-primary"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" id="prev-lesson-btn" style="display: none;">
+                        <i class="ti ti-arrow-left"></i> Bài trước
+                    </button>
+                    <button class="btn btn-primary" id="next-lesson-btn" style="display: none;">
+                        Bài tiếp theo <i class="ti ti-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Fix sticky sidebar */
+    #lessons-sidebar {
+        position: relative !important;
+        margin-top: 40px;
+        max-height: calc(100vh - 280px) !important;
+        overflow-y: auto;
+        z-index: 10;
+    }
+    
+    .row.g-4 {
+        align-items: flex-start !important;
+    }
+    
+    .col-lg-3 {
+        align-self: flex-start !important;
+    }
+    
+    /* Navigation buttons */
+    #prev-lesson-btn,
+    #next-lesson-btn {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* Video player */
+    video {
+        background: #000;
+    }
+    
+    /* Audio player styling */
+    audio {
+        border-radius: 50px;
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    audio::-webkit-media-controls-panel {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 50px;
+    }
+    
+    /* Lessons list */
+    .lesson-item {
+        padding: 12px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid #e9ecef;
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .lesson-item:hover {
+        background: #f8f9fa;
+        border-color: #5D87FF;
+        text-decoration: none;
+    }
+    
+    .lesson-item.active {
+        background: #e7f1ff;
+        border-color: #5D87FF;
+    }
+    
+    .lesson-item.completed {
+        background: #d1f4e0;
+        border-left: 4px solid #28a745;
+    }
+    
+    .lesson-item i {
+        margin-right: 8px;
+    }
+    
+    /* Lesson type icons */
+    .lesson-item.lesson-video i {
+        color: #dc3545; /* Red cho video */
+    }
+    
+    .lesson-item.lesson-listening i {
+        color: #f5576c; /* Pink/Red cho listening */
+    }
+    
+    .lesson-item.lesson-reading i {
+        color: #0d6efd; /* Blue cho reading */
+    }
+    
+    .lesson-item.completed i {
+        color: #28a745 !important; /* Green cho completed */
+    }
+    
+    /* Breadcrumb */
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "/";
+    }
+    
+    /* Complete button states */
+    #complete-btn.disabled,
+    #complete-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Responsive */
+    @media (max-width: 991.98px) {
+        #lessons-sidebar {
+            position: relative !important;
+            top: 0 !important;
+            max-height: none !important;
+        }
+    }
+</style>
+
+<script>
+    // ==================== HELPER FUNCTIONS ====================
+    
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    function formatMinutes(minutes) {
+        if (!minutes) return '0 phút';
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+    }
+
+    function showLoading(elementId) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.innerHTML = '<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>';
+        }
+    }
+
+    function showError(elementId, message) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.innerHTML = `<div class="alert alert-danger mx-4 my-4"><i class="ti ti-alert-circle me-2"></i>${message}</div>`;
+        }
+    }
+
+    function showToast(message, type = 'success') {
+        const bgClass = type === 'success' ? 'bg-success' : (type === 'danger' ? 'bg-danger' : 'bg-warning');
+        const toastId = 'toast-' + Date.now();
+        
+        let container = document.getElementById('toastContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toastContainer';
+            container.className = 'toast-container position-fixed top-0 end-0 p-3';
+            container.style.zIndex = '9999';
+            document.body.appendChild(container);
+        }
+        
+        container.insertAdjacentHTML('beforeend', `
+            <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0 show">
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        `);
+        
+        setTimeout(() => {
+            const toast = document.getElementById(toastId);
+            if (toast) {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    }
+
+    // ==================== MAIN VARIABLES ====================
+    
+    const lessonId = getQueryParam('id');
+    let currentCourse = null;
+    let allLessons = [];
+    let currentLessonIndex = -1;
+
+    // ==================== LOAD LESSON ====================
+    
+    async function loadLesson() {
+        if (!lessonId) {
+            showError('lesson-loader', 'ID bài học không hợp lệ.');
+            return;
+        }
+
+        if (!requireAuth()) return;
+
+        showLoading('lesson-loader');
+
+        try {
+            const data = await API.lessons.getById(lessonId);
+            
+            if (data.success) {
+                const lesson = data.data;
+                
+                document.title = `${lesson.TenBaiHoc} - Learning English`;
+                document.getElementById('lesson-title').textContent = lesson.TenBaiHoc;
+                document.getElementById('lesson-duration').textContent = formatMinutes(lesson.ThoiLuong);
+                document.getElementById('lesson-description').innerHTML = lesson.NoiDung || 'Chưa có mô tả.';
+                
+                // Load saved notes
+                if (lesson.SavedNotes) {
+                    document.getElementById('lesson-notes').value = lesson.SavedNotes;
+                }
+                
+                // Breadcrumb
+                document.getElementById('breadcrumb-course').textContent = lesson.TenKhoaHoc;
+                document.getElementById('breadcrumb-course').href = `/pages/course-detail.html?id=${lesson.MaKhoaHoc}`;
+                document.getElementById('breadcrumb-lesson').textContent = lesson.TenBaiHoc;
+                
+                // ===== HIỂN THỊ THEO LOẠI BÀI HỌC =====
+                const mediaContainer = document.getElementById('media-container');
+                
+                if (lesson.LoaiBaiHoc === 'video') {
+                    // VIDEO LESSON
+                    if (lesson.VideoUrl) {
+                        mediaContainer.innerHTML = `
+                            <video id="lesson-video" controls style="width: 100%; height: 100%;">
+                                <source src="${lesson.VideoUrl}" type="video/mp4">
+                                Trình duyệt của bạn không hỗ trợ video.
+                            </video>
+                        `;
+                    } else {
+                        mediaContainer.innerHTML = `
+                            <div class="d-flex align-items-center justify-content-center h-100" style="background: #f8f9fa;">
+                                <div class="text-center">
+                                    <i class="ti ti-video-off" style="font-size: 3rem; color: #adb5bd;"></i>
+                                    <p class="text-muted mt-3">Video chưa có sẵn</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else if (lesson.LoaiBaiHoc === 'listening') {
+                    // LISTENING LESSON
+                    if (lesson.AudioUrl) {
+                        mediaContainer.innerHTML = `
+                            <div class="d-flex align-items-center justify-content-center h-100" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <div class="text-center text-white w-100 px-5">
+                                    <i class="ti ti-headphones" style="font-size: 4rem;"></i>
+                                    <h4 class="mt-3 mb-4">Bài học Listening</h4>
+                                    <audio id="lesson-audio" controls style="width: 100%; max-width: 600px;">
+                                        <source src="${lesson.AudioUrl}" type="audio/mpeg">
+                                        Trình duyệt của bạn không hỗ trợ audio.
+                                    </audio>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        mediaContainer.innerHTML = `
+                            <div class="d-flex align-items-center justify-content-center h-100" style="background: #f8f9fa;">
+                                <div class="text-center">
+                                    <i class="ti ti-headphones-off" style="font-size: 3rem; color: #adb5bd;"></i>
+                                    <p class="text-muted mt-3">Audio chưa có sẵn</p>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } else if (lesson.LoaiBaiHoc === 'lesson') {
+                    // READING LESSON
+                    mediaContainer.innerHTML = `
+                        <div class="d-flex align-items-center justify-content-center h-100" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                            <div class="text-center text-white">
+                                <i class="ti ti-book-2" style="font-size: 4rem;"></i>
+                                <h4 class="mt-3">Bài học Reading</h4>
+                                <p>Đọc nội dung bên dưới để hoàn thành bài học</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // DEFAULT FALLBACK
+                    mediaContainer.innerHTML = `
+                        <div class="d-flex align-items-center justify-content-center h-100" style="background: #f8f9fa;">
+                            <div class="text-center">
+                                <i class="ti ti-file-text" style="font-size: 3rem; color: #adb5bd;"></i>
+                                <p class="text-muted mt-3">Nội dung bài học</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Check completion status
+                if (lesson.IsCompleted) {
+                    const completeBtn = document.getElementById('complete-btn');
+                    completeBtn.innerHTML = '<i class="ti ti-check"></i> Đã hoàn thành';
+                    completeBtn.classList.add('disabled');
+                    completeBtn.disabled = true;
+                }
+                
+                // Load course lessons for sidebar
+                await loadCourseLessons(lesson.MaKhoaHoc);
+                
+                document.getElementById('lesson-content').style.display = 'block';
+                document.getElementById('lesson-loader').innerHTML = '';
+            } else {
+                showError('lesson-loader', data.message || 'Không thể tải bài học.');
+            }
+        } catch (error) {
+            showError('lesson-loader', `Lỗi: ${error.message}`);
+            console.error('Load lesson error:', error);
+        }
+    }
+
+    async function loadCourseLessons(courseId) {
+        try {
+            const data = await API.courses.getById(courseId);
+            
+            if (data.success && data.data.baiHoc) {
+                allLessons = data.data.baiHoc;
+                currentLessonIndex = allLessons.findIndex(l => l.MaBaiHoc == lessonId);
+                
+                let html = '';
+                allLessons.forEach((lesson, index) => {
+                    const isActive = lesson.MaBaiHoc == lessonId;
+                    
+                    // Icon theo loại bài học
+                    let icon;
+                    if (lesson.IsCompleted) {
+                        icon = 'ti-check';
+                    } else if (lesson.LoaiBaiHoc === 'video') {
+                        icon = 'ti-video';
+                    } else if (lesson.LoaiBaiHoc === 'listening') {
+                        icon = 'ti-headphones';
+                    } else {
+                        icon = 'ti-book-2';
+                    }
+                    
+                    const completedClass = lesson.IsCompleted ? 'completed' : '';
+                    let lessonTypeClass = 'lesson-reading';
+                    if (lesson.LoaiBaiHoc === 'video') {
+                        lessonTypeClass = 'lesson-video';
+                    } else if (lesson.LoaiBaiHoc === 'listening') {
+                        lessonTypeClass = 'lesson-listening';
+                    }
+                    
+                    html += `
+                        <a href="/pages/lesson.html?id=${lesson.MaBaiHoc}" 
+                           class="lesson-item ${isActive ? 'active' : ''} ${completedClass} ${lessonTypeClass}">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="ti ${icon}"></i>
+                                    <span>${index + 1}. ${lesson.TenBaiHoc}</span>
+                                </div>
+                                <small class="text-muted">${formatMinutes(lesson.ThoiLuong)}</small>
+                            </div>
+                        </a>
+                    `;
+                });
+                
+                document.getElementById('lessons-list').innerHTML = html;
+                
+                // Navigation buttons
+                if (currentLessonIndex > 0) {
+                    document.getElementById('prev-lesson-btn').style.display = 'block';
+                    document.getElementById('prev-lesson-btn').onclick = () => {
+                        window.location.href = `/pages/lesson.html?id=${allLessons[currentLessonIndex - 1].MaBaiHoc}`;
+                    };
+                }
+                if (currentLessonIndex < allLessons.length - 1) {
+                    document.getElementById('next-lesson-btn').style.display = 'block';
+                    document.getElementById('next-lesson-btn').onclick = () => {
+                        window.location.href = `/pages/lesson.html?id=${allLessons[currentLessonIndex + 1].MaBaiHoc}`;
+                    };
+                }
+            }
+        } catch (error) {
+            console.error('Load course lessons error:', error);
+        }
+    }
+
+    // ==================== COMPLETE LESSON ====================
+    
+    document.getElementById('complete-btn').addEventListener('click', async () => {
+        if (!requireAuth()) return;
+        
+        const btn = document.getElementById('complete-btn');
+        if (btn.disabled) return;
+        
+        try {
+            const data = await API.lessons.markComplete(lessonId);
+            if (data.success) {
+                showToast('Đã hoàn thành bài học!', 'success');
+                btn.innerHTML = '<i class="ti ti-check"></i> Đã hoàn thành';
+                btn.classList.add('disabled');
+                btn.disabled = true;
+                
+                // Reload sidebar to update completed status
+                const lesson = await API.lessons.getById(lessonId);
+                if (lesson.success) {
+                    await loadCourseLessons(lesson.data.MaKhoaHoc);
+                }
+            } else {
+                showToast(data.message || 'Lỗi khi lưu tiến độ', 'danger');
+            }
+        } catch (error) {
+            showToast('Lỗi khi lưu tiến độ', 'danger');
+            console.error('Mark complete error:', error);
+        }
+    });
+
+    // ==================== SAVE NOTES ====================
+    
+    document.getElementById('save-notes-btn').addEventListener('click', async () => {
+        const notes = document.getElementById('lesson-notes').value.trim();
+        
+        if (!notes) {
+            showToast('Vui lòng nhập ghi chú', 'warning');
+            return;
+        }
+        
+        try {
+            const data = await API.lessons.saveNotes(lessonId, notes);
+            if (data.success) {
+                showToast('Đã lưu ghi chú!', 'success');
+            } else {
+                showToast(data.message || 'Lỗi khi lưu ghi chú', 'danger');
+            }
+        } catch (error) {
+            showToast('Lỗi khi lưu ghi chú', 'danger');
+            console.error('Save notes error:', error);
+        }
+    });
+
+    // ==================== INITIALIZE ====================
+    
+    loadLesson();
+</script>

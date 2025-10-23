@@ -66,45 +66,55 @@ function formatMinutes(minutes) {
 }
 
 // Show toast notification
-function showToast(message, type = 'info') {
-    // Create toast element
-    const toastHtml = `
-        <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) return;
+
+    const toastId = 'toast-' + Date.now();
+    const toastHTML = `
+        <div id="${toastId}" class="toast align-items-center text-white bg-${type === 'success' ? 'success' : 'danger'} border-0" role="alert">
             <div class="d-flex">
-                <div class="toast-body">
-                    ${message}
-                </div>
+                <div class="toast-body">${message}</div>
                 <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
             </div>
         </div>
     `;
-    
-    // Add to page
-    let toastContainer = document.getElementById('toastContainer');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toastContainer';
-        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-        toastContainer.style.zIndex = '9999';
-        document.body.appendChild(toastContainer);
-    }
-    
-    const toastElement = document.createElement('div');
-    toastElement.innerHTML = toastHtml;
-    toastContainer.appendChild(toastElement.firstElementChild);
-    
-    // Show toast
-    const toast = new bootstrap.Toast(toastElement.firstElementChild, {
-        autohide: true,
-        delay: 3000
-    });
+
+    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement);
     toast.show();
-    
-    // Remove after hidden
-    toastElement.firstElementChild.addEventListener('hidden.bs.toast', () => {
+
+    toastElement.addEventListener('hidden.bs.toast', () => {
         toastElement.remove();
     });
 }
+
+// Add to page
+let toastContainer = document.getElementById('toastContainer');
+if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'toastContainer';
+    toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+    toastContainer.style.zIndex = '9999';
+    document.body.appendChild(toastContainer);
+}
+
+const toastElement = document.createElement('div');
+toastElement.innerHTML = toastHtml;
+toastContainer.appendChild(toastElement.firstElementChild);
+
+// Show toast
+const toast = new bootstrap.Toast(toastElement.firstElementChild, {
+    autohide: true,
+    delay: 3000
+});
+toast.show();
+
+// Remove after hidden
+toastElement.firstElementChild.addEventListener('hidden.bs.toast', () => {
+    toastElement.remove();
+});
 
 // Confirm dialog
 function confirmDialog(message, callback) {
@@ -129,28 +139,28 @@ function generateStarRating(rating, showNumber = true) {
     const fullStars = Math.floor(rating);
     const hasHalfStar = rating % 1 >= 0.5;
     const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-    
+
     let html = '';
-    
+
     // Full stars
     for (let i = 0; i < fullStars; i++) {
         html += '<i class="fas fa-star text-warning"></i>';
     }
-    
+
     // Half star
     if (hasHalfStar) {
         html += '<i class="fas fa-star-half-alt text-warning"></i>';
     }
-    
+
     // Empty stars
     for (let i = 0; i < emptyStars; i++) {
         html += '<i class="far fa-star text-warning"></i>';
     }
-    
+
     if (showNumber) {
         html += ` <span class="text-muted">(${rating.toFixed(1)})</span>`;
     }
-    
+
     return html;
 }
 
@@ -195,3 +205,19 @@ function initTooltips() {
 document.addEventListener('DOMContentLoaded', () => {
     initTooltips();
 });
+
+// Hàm hiển thị thông báo
+function displayMessage(message, type = 'info') {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertBefore(alertDiv, container.firstChild);
+    }
+}
+

@@ -1,200 +1,261 @@
 // backend/controllers/lessonController.js
-const { query } = require('../config/database');
+const sql = require('mssql');
 
 class LessonController {
-  // Lấy chi tiết bài học
-  async getLessonDetail(req, res) {
+  async getLessonById(req, res) {
     try {
       const { id } = req.params;
-      const userId = req.user.id;
-      
-      const lessonQuery = `
-        SELECT 
-          bh.*,
-          kh.TenKhoaHoc
-        FROM BaiHoc bh
-        INNER JOIN KhoaHoc kh ON bh.MaKhoaHoc = kh.MaKhoaHoc
-        WHERE bh.MaBaiHoc = @id
-      `;
-      
-      const result = await query(lessonQuery, { id });
-      
+      const userId = req.user?.userId;
+
+      const pool = await sql.connect();
+      const result = await pool.request()
+        .input('lessonId', sql.Int, id)
+        .query(`
+                SELECT 
+                    bh.MaBaiHoc,
+                    bh.TenBaiHoc,
+                    bh.MoTa as NoiDung,
+                    bh.ThoiLuong,
+                    bh.VideoUrl,
+                    bh.AudioUrl,
+                    bh.TaiLieuDinhKem,
+                    bh.ThuTu,
+                    bh.LoaiBaiHoc,
+                    bh.MaKhoaHoc,
+                    kh.TenKhoaHoc
+                FROM BaiHoc bh
+                INNER JOIN KhoaHoc kh ON bh.MaKhoaHoc = kh.MaKhoaHoc
+                WHERE bh.MaBaiHoc = @lessonId
+            `);
+
       if (result.recordset.length === 0) {
         return res.status(404).json({
           success: false,
           message: 'Không tìm thấy bài học'
         });
       }
-      
+
       const lesson = result.recordset[0];
-      
-      // Kiểm tra user đã đăng ký khóa học chưa
-      const enrollQuery = `
-        SELECT * FROM DangKyKhoaHoc 
-        WHERE MaNguoiDung = @userId AND MaKhoaHoc = @courseId
-      `;
-      
-      const enrolled = await query(enrollQuery, { 
-        userId, 
-        courseId: lesson.MaKhoaHoc 
-      });
-      
-      if (enrolled.recordset.length === 0) {
-        return res.status(403).json({
-          success: false,
-          message: 'Bạn chưa đăng ký khóa học này'
-        });
-      }
-      
-      // Lấy tiến độ bài học
-      const progressQuery = `
-        SELECT * FROM TienDoBaiHoc 
-        WHERE MaNguoiDung = @userId AND MaBaiHoc = @id
-      `;
-      
-      const progress = await query(progressQuery, { userId, id });
-      
-      res.json({
-        success: true,
-        data: {
-          ...lesson,
-          tienDo: progress.recordset[0] || null
+
+      // ===== LOAD PROGRESS VÀ GHI CHÚ =====
+      if (userId) {
+        const progressResult = await pool.request()
+          .input('userId', sql.Int, userId)
+          .input('lessonId', sql.Int, id)
+          .query(`
+                    SELECT TrangThai, TienDo, NgayHoanThanh, GhiChu
+                    FROM TienDoBaiHoc 
+                    WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
+                `);
+
+        if (progressResult.recordset.length > 0) {
+          const progress = progressResult.recordset[0];
+          lesson.IsCompleted = progress.TrangThai === 'completed';
+          lesson.Progress = progress.TienDo || 0;
+          lesson.CompletedDate = progress.NgayHoanThanh;
+          lesson.SavedNotes = progress.GhiChu || ''; // THÊM: Load ghi chú
+        } else {
+          lesson.IsCompleted = false;
+          lesson.Progress = 0;
+          lesson.SavedNotes = '';
         }
+      } else {
+        lesson.IsCompleted = false;
+        lesson.Progress = 0;
+        lesson.SavedNotes = '';
+      }
+
+      return res.json({
+        success: true,
+        data: lesson
       });
-      
     } catch (error) {
-      console.error('Get lesson detail error:', error);
-      res.status(500).json({
+      console.error('Get lesson error:', error);
+      return res.status(500).json({
         success: false,
         message: 'Lỗi khi tải bài học'
       });
     }
   }
-  
-  // Bắt đầu học bài
-  async startLesson(req, res) {
+
+  async getLessonsByCourse(req, res) {
     try {
-      const userId = req.user.id;
-      const { lessonId } = req.body;
-      
-      // Kiểm tra đã có tiến độ chưa
-      const checkQuery = `
-        SELECT * FROM TienDoBaiHoc 
-        WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
-      `;
-      
-      const existing = await query(checkQuery, { userId, lessonId });
-      
-      if (existing.recordset.length > 0) {
-        // Cập nhật lần truy cập
-        const updateQuery = `
-          UPDATE TienDoBaiHoc 
-          SET LanTruyCap = GETDATE()
-          WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
-        `;
-        
-        await query(updateQuery, { userId, lessonId });
-      } else {
-        // Tạo tiến độ mới
-        const insertQuery = `
-          INSERT INTO TienDoBaiHoc 
-          (MaNguoiDung, MaBaiHoc, TrangThai, NgayBatDau, LanTruyCap)
-          VALUES (@userId, @lessonId, N'in_progress', GETDATE(), GETDATE())
-        `;
-        
-        await query(insertQuery, { userId, lessonId });
+      const { courseId } = req.params;
+
+      const pool = await sql.connect();
+      const result = await pool.request()
+        .input('courseId', sql.Int, courseId)
+        .query(`
+                    SELECT 
+                        MaBaiHoc,
+                        TenBaiHoc,
+                        MoTa as NoiDung,
+                        ThoiLuong,
+                        ThuTu,
+                        LoaiBaiHoc
+                    FROM BaiHoc
+                    WHERE MaKhoaHoc = @courseId
+                    ORDER BY ThuTu ASC
+                `);
+
+      return res.json({
+        success: true,
+        data: result.recordset
+      });
+    } catch (error) {
+      console.error('Get lessons by course error:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Lỗi khi tải danh sách bài học'
+      });
+    }
+  }
+
+  async markLessonComplete(req, res) {
+    try {
+      const { id } = req.params;
+
+      // ===== VALIDATION: Kiểm tra req.user =====
+      if (!req.user || !req.user.userId) {
+        console.error('req.user is missing or invalid:', req.user);
+        return res.status(401).json({
+          success: false,
+          message: 'Không tìm thấy thông tin người dùng'
+        });
       }
-      
-      res.json({
+
+      const userId = req.user.userId;
+      console.log('=== MARK COMPLETE ===');
+      console.log('User ID:', userId);
+      console.log('Lesson ID:', id);
+
+      const pool = await sql.connect();
+
+      // Kiểm tra đã có tiến độ chưa
+      const checkProgress = await pool.request()
+        .input('userId', sql.Int, userId)
+        .input('lessonId', sql.Int, id)
+        .query(`
+                    SELECT * FROM TienDoBaiHoc 
+                    WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
+                `);
+
+      if (checkProgress.recordset.length > 0) {
+        // Cập nhật
+        await pool.request()
+          .input('userId', sql.Int, userId)
+          .input('lessonId', sql.Int, id)
+          .query(`
+                        UPDATE TienDoBaiHoc 
+                        SET TrangThai = 'completed', 
+                            TienDo = 100, 
+                            NgayHoanThanh = GETDATE(),
+                            LanTruyCap = GETDATE()
+                        WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
+                    `);
+      } else {
+        // Thêm mới - MaNguoiDung và MaBaiHoc là NOT NULL nên phải có
+        await pool.request()
+          .input('userId', sql.Int, userId)
+          .input('lessonId', sql.Int, id)
+          .query(`
+                        INSERT INTO TienDoBaiHoc (
+                            MaNguoiDung, 
+                            MaBaiHoc, 
+                            TrangThai, 
+                            TienDo, 
+                            NgayBatDau, 
+                            NgayHoanThanh,
+                            ThoiGianHoc,
+                            LanTruyCap
+                        )
+                        VALUES (
+                            @userId, 
+                            @lessonId, 
+                            'completed', 
+                            100, 
+                            GETDATE(), 
+                            GETDATE(),
+                            0,
+                            GETDATE()
+                        )
+                    `);
+      }
+
+      return res.json({
         success: true,
-        message: 'Đã bắt đầu bài học'
+        message: 'Đã đánh dấu hoàn thành bài học'
       });
-      
     } catch (error) {
-      console.error('Start lesson error:', error);
-      res.status(500).json({
+      console.error('Mark lesson complete error:', error);
+      return res.status(500).json({
         success: false,
-        message: 'Lỗi khi bắt đầu bài học'
+        message: 'Lỗi khi lưu tiến độ',
+        error: error.message
       });
     }
   }
-  
-  // Hoàn thành bài học
-  async completeLesson(req, res) {
+
+  async saveNotes(req, res) {
     try {
-      const userId = req.user.id;
-      const { lessonId, timeSpent } = req.body;
-      
-      // Cập nhật tiến độ
-      const updateQuery = `
-        UPDATE TienDoBaiHoc 
-        SET TrangThai = N'completed',
-            TienDo = 100,
-            ThoiGianHoc = @timeSpent,
-            NgayHoanThanh = GETDATE()
-        WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
-      `;
-      
-      await query(updateQuery, { userId, lessonId, timeSpent });
-      
-      // Cập nhật tiến độ khóa học
-      await this.updateCourseProgress(userId, lessonId);
-      
-      res.json({
+      const { id } = req.params;
+      const { notes } = req.body;
+      const userId = req.user.userId;
+
+      const pool = await sql.connect();
+
+      // Check đã có record chưa
+      const checkNotes = await pool.request()
+        .input('userId', sql.Int, userId)
+        .input('lessonId', sql.Int, id)
+        .query(`
+                SELECT * FROM TienDoBaiHoc 
+                WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
+            `);
+
+      if (checkNotes.recordset.length > 0) {
+        // Update ghi chú
+        await pool.request()
+          .input('userId', sql.Int, userId)
+          .input('lessonId', sql.Int, id)
+          .input('notes', sql.NVarChar, notes)
+          .query(`
+                    UPDATE TienDoBaiHoc 
+                    SET GhiChu = @notes
+                    WHERE MaNguoiDung = @userId AND MaBaiHoc = @lessonId
+                `);
+      } else {
+        // Tạo record mới với ghi chú
+        await pool.request()
+          .input('userId', sql.Int, userId)
+          .input('lessonId', sql.Int, id)
+          .input('notes', sql.NVarChar, notes)
+          .query(`
+                    INSERT INTO TienDoBaiHoc (
+                        MaNguoiDung, 
+                        MaBaiHoc, 
+                        GhiChu,
+                        NgayBatDau
+                    )
+                    VALUES (
+                        @userId, 
+                        @lessonId, 
+                        @notes,
+                        GETDATE()
+                    )
+                `);
+      }
+
+      return res.json({
         success: true,
-        message: 'Đã hoàn thành bài học'
+        message: 'Đã lưu ghi chú'
       });
-      
     } catch (error) {
-      console.error('Complete lesson error:', error);
-      res.status(500).json({
+      console.error('Save notes error:', error);
+      return res.status(500).json({
         success: false,
-        message: 'Lỗi khi hoàn thành bài học'
+        message: 'Lỗi khi lưu ghi chú'
       });
-    }
-  }
-  
-  // Helper: Cập nhật tiến độ khóa học
-  async updateCourseProgress(userId, lessonId) {
-    try {
-      // Lấy khóa học của bài học
-      const getCourseQuery = `
-        SELECT MaKhoaHoc FROM BaiHoc WHERE MaBaiHoc = @lessonId
-      `;
-      
-      const courseResult = await query(getCourseQuery, { lessonId });
-      const courseId = courseResult.recordset[0].MaKhoaHoc;
-      
-      // Tính tiến độ
-      const progressQuery = `
-        SELECT 
-          COUNT(*) as TongBaiHoc,
-          SUM(CASE WHEN td.TrangThai = N'completed' THEN 1 ELSE 0 END) as BaiHoanThanh
-        FROM BaiHoc bh
-        LEFT JOIN TienDoBaiHoc td ON bh.MaBaiHoc = td.MaBaiHoc AND td.MaNguoiDung = @userId
-        WHERE bh.MaKhoaHoc = @courseId
-      `;
-      
-      const progress = await query(progressQuery, { userId, courseId });
-      const { TongBaiHoc, BaiHoanThanh } = progress.recordset[0];
-      
-      const tienDo = (BaiHoanThanh / TongBaiHoc) * 100;
-      const trangThai = tienDo === 100 ? 'completed' : 'learning';
-      
-      // Cập nhật
-      const updateQuery = `
-        UPDATE DangKyKhoaHoc 
-        SET TienDo = @tienDo,
-            TrangThai = @trangThai,
-            NgayTruyCap = GETDATE()
-            ${trangThai === 'completed' ? ', NgayHoanThanh = GETDATE()' : ''}
-        WHERE MaNguoiDung = @userId AND MaKhoaHoc = @courseId
-      `;
-      
-      await query(updateQuery, { tienDo, trangThai, userId, courseId });
-      
-    } catch (error) {
-      console.error('Update course progress error:', error);
     }
   }
 }

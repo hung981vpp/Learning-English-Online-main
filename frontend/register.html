@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/auth.css">
 </head>
+
 <body>
 
     <div class="auth-container">
@@ -19,11 +21,12 @@
                     Learning English
                 </a>
             </div>
-            
+
             <h2 class="fw-bold">Tạo tài khoản</h2>
             <p class="text-muted mb-4 text-center">Bắt đầu hành trình học tập của bạn.</p>
 
-            <form id="registerForm" novalidate> <div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert"></div>
+            <form id="registerForm" novalidate>
+                <div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert"></div>
 
                 <div class="row mb-3">
                     <div class="col-md-6">
@@ -32,7 +35,8 @@
                         <div class="invalid-feedback">Vui lòng nhập họ tên.</div>
                     </div>
                     <div class="col-md-6">
-                        <label for="tenDangNhap" class="form-label">Tên đăng nhập <span class="text-danger">*</span></label>
+                        <label for="tenDangNhap" class="form-label">Tên đăng nhập <span
+                                class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="tenDangNhap" required>
                         <div class="invalid-feedback">Vui lòng nhập tên đăng nhập.</div>
                     </div>
@@ -49,19 +53,23 @@
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
-                    <input type="password" class="form-control" id="password" placeholder="Tối thiểu 6 ký tự" required minlength="6">
+                    <input type="password" class="form-control" id="password" placeholder="Tối thiểu 6 ký tự" required
+                        minlength="6">
                     <div class="invalid-feedback">Mật khẩu phải có ít nhất 6 ký tự.</div>
                 </div>
                 <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Nhập lại mật khẩu <span class="text-danger">*</span></label>
+                    <label for="confirmPassword" class="form-label">Nhập lại mật khẩu <span
+                            class="text-danger">*</span></label>
                     <input type="password" class="form-control" id="confirmPassword" required>
                     <div class="invalid-feedback">Vui lòng nhập lại mật khẩu.</div>
-                    <div id="passwordMismatch" class="text-danger mt-1" style="display: none; font-size: 0.875em;">Mật khẩu không khớp.</div>
+                    <div id="passwordMismatch" class="text-danger mt-1" style="display: none; font-size: 0.875em;">Mật
+                        khẩu không khớp.</div>
                 </div>
-                
+
                 <div class="d-grid gap-2 mt-4">
                     <button type="submit" class="btn btn-primary btn-lg" id="registerButton">
-                        <span class="spinner-border spinner-border-sm" style="display: none;" role="status" aria-hidden="true"></span>
+                        <span class="spinner-border spinner-border-sm" style="display: none;" role="status"
+                            aria-hidden="true"></span>
                         Đăng ký
                     </button>
                 </div>
@@ -83,92 +91,101 @@
     <script src="assets/js/auth.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        // Kiểm tra auth ngay lập tức
+        if (isAuthenticated()) {
+            const user = getCurrentUser();
+            if (user && user.isAdmin) {
+                window.location.href = 'admin/dashboard.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Chuyển hướng nếu đã đăng nhập
             redirectIfAuthenticated();
 
+            // Lấy các elements
             const registerForm = document.getElementById('registerForm');
             const registerButton = document.getElementById('registerButton');
-            const spinner = registerButton.querySelector('.spinner-border');
             const errorMessage = document.getElementById('errorMessage');
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
             const passwordMismatch = document.getElementById('passwordMismatch');
 
-            registerForm.addEventListener('submit', async (e) => {
+            // Xử lý submit form
+            registerForm.addEventListener('submit', async function (e) {
                 e.preventDefault();
-                e.stopPropagation(); // Ngăn chặn submit nếu form không hợp lệ
 
                 // Reset các thông báo lỗi
                 errorMessage.style.display = 'none';
                 passwordMismatch.style.display = 'none';
-                registerForm.classList.remove('was-validated'); // Xóa class validation cũ
+                registerForm.classList.remove('was-validated');
 
                 // Kiểm tra validation của Bootstrap
                 if (!registerForm.checkValidity()) {
-                    registerForm.classList.add('was-validated'); // Hiển thị lỗi validation
+                    registerForm.classList.add('was-validated');
                     return;
                 }
-                
-                const hoTen = document.getElementById('hoTen').value;
-                const tenDangNhap = document.getElementById('tenDangNhap').value;
-                const email = document.getElementById('email').value;
-                const soDienThoai = document.getElementById('soDienThoai').value;
+
+                // Lấy giá trị từ form
+                const hoTen = document.getElementById('hoTen').value.trim();
+                const tenDangNhap = document.getElementById('tenDangNhap').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const soDienThoai = document.getElementById('soDienThoai').value.trim();
                 const matKhau = passwordInput.value;
                 const confirmPassword = confirmPasswordInput.value;
 
-                // Kiểm tra mật khẩu khớp (JavaScript validation)
+                // Kiểm tra mật khẩu khớp
                 if (matKhau !== confirmPassword) {
-                    confirmPasswordInput.classList.add('is-invalid'); // Thêm viền đỏ
-                    passwordMismatch.style.display = 'block'; // Hiện thông báo lỗi
+                    confirmPasswordInput.classList.add('is-invalid');
+                    passwordMismatch.style.display = 'block';
                     return;
                 } else {
-                    confirmPasswordInput.classList.remove('is-invalid'); // Bỏ viền đỏ nếu khớp
+                    confirmPasswordInput.classList.remove('is-invalid');
                 }
-                
-                // Hiển thị loading
-                registerButton.disabled = true;
-                spinner.style.display = 'inline-block';
 
                 try {
-                    const userData = { hoTen, tenDangNhap, email, matKhau, soDienThoai };
-                    const data = await API.auth.register(userData);
+                    // Hiển thị loading
+                    const originalText = registerButton.textContent;
+                    registerButton.disabled = true;
+                    registerButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" style="width: 0.8rem; height: 0.8rem;"></span>${originalText}`;
 
-                    if (data.success) {
-                        showToast('Đăng ký thành công! Vui lòng đăng nhập.', 'success');
-                        setTimeout(() => {
-                            window.location.href = 'login.html';
-                        }, 2000);
+                    // Gọi API đăng ký
+                    const result = await API.auth.register({
+                        hoTen,
+                        tenDangNhap,
+                        email,
+                        matKhau,
+                        soDienThoai: soDienThoai || null
+                    });
+
+                    // Thành công
+                    if (result.success) {
+                        alert('Đăng ký thành công! Vui lòng đăng nhập.');
+                        window.location.href = 'login.html';
                     }
+
                 } catch (error) {
-                    errorMessage.textContent = error.message || 'Đăng ký thất bại. Vui lòng thử lại.';
+                    // Hiển thị lỗi
+                    console.error('Register error:', error);
+                    errorMessage.textContent = error.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.';
                     errorMessage.style.display = 'block';
-                    
+
+                    // Khôi phục nút
                     registerButton.disabled = false;
-                    spinner.style.display = 'none';
+                    registerButton.innerHTML = 'Đăng ký';
                 }
             });
 
-            // Thêm kiểm tra mật khẩu khớp khi người dùng gõ
-            confirmPasswordInput.addEventListener('input', () => {
-                if (passwordInput.value !== confirmPasswordInput.value) {
-                    confirmPasswordInput.classList.add('is-invalid');
-                    passwordMismatch.style.display = 'block';
-                } else {
-                    confirmPasswordInput.classList.remove('is-invalid');
-                    passwordMismatch.style.display = 'none';
-                }
+            // Xóa lỗi khi người dùng nhập lại mật khẩu
+            confirmPasswordInput.addEventListener('input', function () {
+                this.classList.remove('is-invalid');
+                passwordMismatch.style.display = 'none';
             });
-            passwordInput.addEventListener('input', () => { // Kiểm tra lại khi mật khẩu chính thay đổi
-                 if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
-                    confirmPasswordInput.classList.add('is-invalid');
-                    passwordMismatch.style.display = 'block';
-                } else {
-                    confirmPasswordInput.classList.remove('is-invalid');
-                    passwordMismatch.style.display = 'none';
-                }
-            });
-
         });
     </script>
+
 </body>
+
 </html>
