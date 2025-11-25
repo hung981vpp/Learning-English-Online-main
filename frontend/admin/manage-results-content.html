@@ -1,0 +1,391 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.search-box {
+    max-width: 300px;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-12">
+                    <h4 class="fw-semibold mb-1">Quản lý kết quả học tập</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Kết quả học tập</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm học viên...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="quizFilter">
+                        <option value="">Tất cả bài kiểm tra</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="statusFilter">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="pass">Đạt</option>
+                        <option value="fail">Không đạt</option>
+                    </select>
+                </div>
+                <div class="col-md-3 text-end">
+                    <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
+                        <i class="ti ti-file-spreadsheet me-1"></i>Xuất Excel
+                    </button>
+                    <span class="text-muted">Tổng: <strong id="totalResults">0</strong> kết quả</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Học viên</th>
+                            <th>Bài kiểm tra</th>
+                            <th>Điểm</th>
+                            <th>Trạng thái</th>
+                            <th>Thời gian làm</th>
+                            <th>Ngày làm</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết kết quả</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailContent">
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allResults = [];
+let filteredResults = [];
+let quizzes = [];
+
+window.loadManageResults = async function() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentElement.tagName !== 'BODY') {
+            document.body.appendChild(modal);
+        }
+    });
+    
+    await loadQuizzes();
+    await loadResults();
+    setupEventListeners();
+};
+
+async function loadQuizzes() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/quizzes', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            quizzes = data.data;
+            populateQuizFilter();
+        }
+    } catch (error) {
+        console.error('Error loading quizzes:', error);
+    }
+}
+
+function populateQuizFilter() {
+    const quizFilter = document.getElementById('quizFilter');
+    const options = quizzes.map(q => 
+        `<option value="${q.MaBaiKiemTra}">${q.TenBaiKiemTra}</option>`
+    ).join('');
+    quizFilter.innerHTML = '<option value="">Tất cả bài kiểm tra</option>' + options;
+}
+
+async function loadResults() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/results', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allResults = data.data;
+            filteredResults = allResults;
+            renderResults(filteredResults);
+            document.getElementById('totalResults').textContent = allResults.length;
+        }
+    } catch (error) {
+        console.error('Error loading results:', error);
+        showError('Không thể tải danh sách kết quả');
+    }
+}
+
+function renderResults(results) {
+    const tbody = document.getElementById('resultsTableBody');
+    
+    if (results.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                    <i class="ti ti-clipboard-check fs-1"></i>
+                    <p class="mt-2">Không tìm thấy kết quả nào</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = results.map(result => {
+        const isPassed = result.Diem >= 5; // Điểm đạt mặc định là 5
+        const statusClass = isPassed ? 'bg-success' : 'bg-danger';
+        const statusText = isPassed ? 'Đạt' : 'Không đạt';
+        const testDate = new Date(result.NgayLamBai).toLocaleDateString('vi-VN');
+        
+        return `
+            <tr>
+                <td>${result.MaKetQua}</td>
+                <td>
+                    <div class="fw-semibold">${result.HoTen}</div>
+                    <small class="text-muted">${result.Email}</small>
+                </td>
+                <td>${result.TenBaiKiemTra}</td>
+                <td>
+                    <span class="fw-bold fs-5 ${result.Diem >= 8 ? 'text-success' : result.Diem >= 5 ? 'text-warning' : 'text-danger'}">
+                        ${result.Diem.toFixed(1)}/10
+                    </span>
+                </td>
+                <td><span class="badge ${statusClass}">${statusText}</span></td>
+                <td>${result.ThoiGianLamBai || 0} phút</td>
+                <td>${testDate}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-light-primary action-btn" onclick="viewDetail(${result.MaKetQua})" title="Xem chi tiết">
+                        <i class="ti ti-eye"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterResults(searchTerm, document.getElementById('quizFilter').value, document.getElementById('statusFilter').value);
+    });
+    
+    document.getElementById('quizFilter').addEventListener('change', (e) => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filterResults(searchTerm, e.target.value, document.getElementById('statusFilter').value);
+    });
+    
+    document.getElementById('statusFilter').addEventListener('change', (e) => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filterResults(searchTerm, document.getElementById('quizFilter').value, e.target.value);
+    });
+}
+
+function filterResults(searchTerm, quizFilter, statusFilter) {
+    filteredResults = allResults.filter(result => {
+        const matchSearch = result.HoTen.toLowerCase().includes(searchTerm) || 
+                          result.Email.toLowerCase().includes(searchTerm);
+        const matchQuiz = !quizFilter || result.MaBaiKiemTra == quizFilter;
+        
+        let matchStatus = true;
+        if (statusFilter === 'pass') {
+            matchStatus = result.Diem >= 5;
+        } else if (statusFilter === 'fail') {
+            matchStatus = result.Diem < 5;
+        }
+        
+        return matchSearch && matchQuiz && matchStatus;
+    });
+    
+    renderResults(filteredResults);
+}
+
+async function viewDetail(resultId) {
+    const result = allResults.find(r => r.MaKetQua === resultId);
+    if (!result) return;
+    
+    const isPassed = result.Diem >= 5;
+    const statusClass = isPassed ? 'text-success' : 'text-danger';
+    const statusText = isPassed ? 'Đạt' : 'Không đạt';
+    
+    const detailContent = document.getElementById('detailContent');
+    detailContent.innerHTML = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="fw-bold">Thông tin học viên</h6>
+                <p><strong>Họ tên:</strong> ${result.HoTen}</p>
+                <p><strong>Email:</strong> ${result.Email}</p>
+            </div>
+            <div class="col-md-6">
+                <h6 class="fw-bold">Thông tin bài kiểm tra</h6>
+                <p><strong>Bài kiểm tra:</strong> ${result.TenBaiKiemTra}</p>
+                <p><strong>Ngày làm:</strong> ${new Date(result.NgayLamBai).toLocaleString('vi-VN')}</p>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="text-center p-3 bg-light rounded">
+                    <h3 class="mb-0">${result.Diem.toFixed(1)}/10</h3>
+                    <small class="text-muted">Điểm số</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3 bg-light rounded">
+                    <h3 class="mb-0 ${statusClass}">${statusText}</h3>
+                    <small class="text-muted">Trạng thái</small>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-center p-3 bg-light rounded">
+                    <h3 class="mb-0">${result.ThoiGianLamBai || 0}</h3>
+                    <small class="text-muted">Phút</small>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div>
+            <h6 class="fw-bold">Ghi chú</h6>
+            <p class="text-muted">${result.GhiChu || 'Không có ghi chú'}</p>
+        </div>
+    `;
+    
+    new bootstrap.Modal(document.getElementById('detailModal')).show();
+}
+
+function exportToExcel() {
+    if (typeof XLSX === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+        script.onload = () => performExport();
+        document.head.appendChild(script);
+    } else {
+        performExport();
+    }
+}
+
+function performExport() {
+    const exportData = filteredResults.map(result => {
+        const isPassed = result.Diem >= 5;
+        return {
+            'ID': result.MaKetQua,
+            'Học viên': result.HoTen,
+            'Email': result.Email,
+            'Bài kiểm tra': result.TenBaiKiemTra,
+            'Điểm': result.Diem.toFixed(1),
+            'Trạng thái': isPassed ? 'Đạt' : 'Không đạt',
+            'Thời gian làm (phút)': result.ThoiGianLamBai || 0,
+            'Ngày làm': new Date(result.NgayLamBai).toLocaleDateString('vi-VN')
+        };
+    });
+    
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    ws['!cols'] = [
+        { wch: 8 },
+        { wch: 25 },
+        { wch: 30 },
+        { wch: 30 },
+        { wch: 10 },
+        { wch: 15 },
+        { wch: 18 },
+        { wch: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, 'Kết quả học tập');
+    
+    const filename = `Ket_qua_hoc_tap_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, filename);
+    
+    showSuccess('Xuất file Excel thành công!');
+}
+
+function showSuccess(message) {
+    alert(message);
+}
+
+function showError(message) {
+    alert(message);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadManageResults, 100);
+    });
+} else {
+    setTimeout(window.loadManageResults, 100);
+}
+</script>

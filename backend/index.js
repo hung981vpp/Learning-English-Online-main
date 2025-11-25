@@ -11,13 +11,16 @@ const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const lessonRoutes = require('./routes/lessonRoutes');
 const quizRoutes = require('./routes/quizRoutes');
+const flashcardRoutes = require('./routes/flashcardRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors({
-  origin: 'http://127.0.0.1:5501', 
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'], // Cho phép cổng 3000 truy cập
   credentials: true
 }));
 app.use(bodyParser.json());
@@ -33,7 +36,10 @@ app.use((req, res, next) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/lessons', lessonRoutes);
-app.use('/api', quizRoutes);;
+app.use('/api', quizRoutes);
+app.use('/api', flashcardRoutes);
+app.use('/api', dashboardRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

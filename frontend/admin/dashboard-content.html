@@ -1,0 +1,427 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.admin-stat-card {
+    transition: all 0.3s;
+    border-left: 4px solid transparent;
+}
+
+.admin-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.admin-stat-card.primary {
+    border-left-color: #5d87ff;
+}
+
+.admin-stat-card.success {
+    border-left-color: #13deb9;
+}
+
+.admin-stat-card.warning {
+    border-left-color: #ffae1f;
+}
+
+.admin-stat-card.danger {
+    border-left-color: #fa896b;
+}
+
+.stat-icon-large {
+    width: 70px;
+    height: 70px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+.quick-action-btn {
+    padding: 1.5rem;
+    border-radius: 12px;
+    transition: all 0.3s;
+    border: 2px solid #e9ecef;
+}
+
+.quick-action-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    border-color: #5d87ff;
+}
+
+.activity-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.activity-item-admin {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.activity-dot {
+    position: absolute;
+    left: -1.85rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #5d87ff;
+    border: 3px solid #fff;
+    box-shadow: 0 0 0 2px #e9ecef;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <!-- Welcome Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4" style="margin-top: 0 !important;">
+        <div class="card-body px-4 py-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="fw-bold mb-2 text-dark">Dashboard Quản trị 👨‍💼</h3>
+                    <p class="mb-0 text-muted">Tổng quan hệ thống và quản lý</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="text-muted">
+                        <small>Hôm nay</small>
+                        <h5 class="mb-0 text-dark" id="current-date"></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            <div class="card admin-stat-card primary border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Tổng người dùng</h6>
+                            <h2 class="mb-0 fw-bold" id="total-users">0</h2>
+                            <small class="text-success">
+                                <i class="ti ti-arrow-up"></i> +12% tháng này
+                            </small>
+                        </div>
+                        <div class="stat-icon-large bg-primary-subtle text-primary">
+                            <i class="ti ti-users"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card admin-stat-card success border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Tổng khóa học</h6>
+                            <h2 class="mb-0 fw-bold" id="total-courses">0</h2>
+                            <small class="text-success">
+                                <i class="ti ti-arrow-up"></i> +5% tháng này
+                            </small>
+                        </div>
+                        <div class="stat-icon-large bg-success-subtle text-success">
+                            <i class="ti ti-book"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card admin-stat-card warning border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Bài kiểm tra</h6>
+                            <h2 class="mb-0 fw-bold" id="total-quizzes">0</h2>
+                            <small class="text-muted">
+                                Đã hoàn thành
+                            </small>
+                        </div>
+                        <div class="stat-icon-large bg-warning-subtle text-warning">
+                            <i class="ti ti-file-pencil"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card admin-stat-card danger border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="text-muted mb-2">Tổng Flashcards</h6>
+                            <h2 class="mb-0 fw-bold" id="total-flashcards">0</h2>
+                            <small class="text-muted">
+                                Thẻ ghi nhớ
+                            </small>
+                        </div>
+                        <div class="stat-icon-large bg-danger-subtle text-danger">
+                            <i class="ti ti-cards"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row mt-4">
+        <!-- Quick Actions -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-bolt me-2"></i>Quản lý nhanh
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <a href="/admin/manage-users.html" class="quick-action-btn d-block text-center text-decoration-none">
+                                <i class="ti ti-users text-primary mb-2" style="font-size: 3.5rem;"></i>
+                                <h6 class="mb-0 text-dark">Quản lý người dùng</h6>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/admin/manage-courses.html" class="quick-action-btn d-block text-center text-decoration-none">
+                                <i class="ti ti-book text-success mb-2" style="font-size: 3.5rem;"></i>
+                                <h6 class="mb-0 text-dark">Quản lý khóa học</h6>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="/admin/manage-quizzes.html" class="quick-action-btn d-block text-center text-decoration-none">
+                                <i class="ti ti-file-pencil text-warning mb-2" style="font-size: 3.5rem;"></i>
+                                <h6 class="mb-0 text-dark">Quản lý bài kiểm tra</h6>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-clock-hour-4 me-2"></i>Hoạt động gần đây
+                    </h5>
+                    <div class="activity-timeline" id="admin-activities">
+                        <div class="text-center py-4 text-muted">
+                            <i class="ti ti-inbox fs-1"></i>
+                            <p class="mt-2">Chưa có hoạt động nào</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics & Info -->
+        <div class="col-lg-4">
+            <!-- User Distribution -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-chart-pie me-2"></i>Phân bố người dùng
+                    </h5>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Học viên</span>
+                            <span class="fw-bold" id="student-count">0</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-primary" id="student-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Giáo viên</span>
+                            <span class="fw-bold" id="teacher-count">0</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar bg-success" id="teacher-progress" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- System Info -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-info-circle me-2"></i>Thông tin hệ thống
+                    </h5>
+                    <div class="mb-3">
+                        <small class="text-muted">Phiên bản</small>
+                        <p class="mb-0 fw-bold">v1.0.0</p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Database</small>
+                        <p class="mb-0 fw-bold">SQL Server</p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Trạng thái</small>
+                        <p class="mb-0">
+                            <span class="badge bg-success-subtle text-success">
+                                <i class="ti ti-circle-filled"></i> Hoạt động
+                            </span>
+                        </p>
+                    </div>
+                    <div>
+                        <small class="text-muted">Cập nhật lần cuối</small>
+                        <p class="mb-0 fw-bold" id="last-update"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+console.log('=== ADMIN DASHBOARD SCRIPT START ===');
+
+window.loadAdminDashboard = async function() {
+    try {
+        // Set current date
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('vi-VN', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+        });
+        document.getElementById('current-date').textContent = dateStr;
+        document.getElementById('last-update').textContent = today.toLocaleString('vi-VN');
+
+        // Load statistics
+        await loadAdminStatistics();
+        await loadRecentActivities();
+    } catch (error) {
+        console.error('Load admin dashboard error:', error);
+    }
+};
+
+async function loadAdminStatistics() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        // Load real data from API
+        const response = await fetch('http://localhost:3001/api/dashboard/admin/stats', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            const stats = data.data;
+            
+            document.getElementById('total-users').textContent = stats.totalUsers || 0;
+            document.getElementById('total-courses').textContent = stats.totalCourses || 0;
+            document.getElementById('total-quizzes').textContent = stats.totalQuizzes || 0;
+            document.getElementById('total-flashcards').textContent = stats.totalFlashcards || 0;
+
+            // User distribution
+            document.getElementById('student-count').textContent = stats.students || 0;
+            document.getElementById('teacher-count').textContent = stats.teachers || 0;
+
+            const totalUsers = stats.totalUsers || 1;
+            const studentPercent = ((stats.students || 0) / totalUsers) * 100;
+            const teacherPercent = ((stats.teachers || 0) / totalUsers) * 100;
+
+            setTimeout(() => {
+                document.getElementById('student-progress').style.width = studentPercent + '%';
+                document.getElementById('teacher-progress').style.width = teacherPercent + '%';
+            }, 100);
+        }
+    } catch (error) {
+        console.error('Error loading admin statistics:', error);
+        // Show 0 if API fails
+        document.getElementById('total-users').textContent = '0';
+        document.getElementById('total-courses').textContent = '0';
+        document.getElementById('total-quizzes').textContent = '0';
+        document.getElementById('total-flashcards').textContent = '0';
+    }
+}
+
+async function loadRecentActivities() {
+    const activities = [
+        { type: 'user', action: 'Người dùng mới đăng ký', user: 'Nguyễn Văn A', time: '5 phút trước' },
+        { type: 'course', action: 'Khóa học mới được tạo', user: 'Admin', time: '15 phút trước' },
+        { type: 'quiz', action: 'Bài kiểm tra được hoàn thành', user: 'Trần Thị B', time: '30 phút trước' },
+        { type: 'user', action: 'Người dùng cập nhật hồ sơ', user: 'Lê Văn C', time: '1 giờ trước' },
+        { type: 'course', action: 'Khóa học được xuất bản', user: 'Teacher', time: '2 giờ trước' }
+    ];
+
+    const html = activities.map(activity => {
+        const iconMap = {
+            user: 'ti-user',
+            course: 'ti-book',
+            quiz: 'ti-file-pencil'
+        };
+        const colorMap = {
+            user: 'primary',
+            course: 'success',
+            quiz: 'warning'
+        };
+
+        return `
+        <div class="activity-item-admin">
+            <div class="activity-dot"></div>
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    <div class="rounded-circle bg-${colorMap[activity.type]}-subtle p-2">
+                        <i class="ti ${iconMap[activity.type]} text-${colorMap[activity.type]} fs-5"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-bold text-dark">${activity.action}</h6>
+                    <p class="mb-0 text-muted small">${activity.user}</p>
+                    <small class="text-muted">
+                        <i class="ti ti-clock fs-6 me-1"></i>${activity.time}
+                    </small>
+                </div>
+            </div>
+        </div>
+    `;
+    }).join('');
+
+    document.getElementById('admin-activities').innerHTML = html;
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('vi-VN', {
+        style: 'currency',
+        currency: 'VND'
+    }).format(amount);
+}
+
+// Auto load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadAdminDashboard, 100);
+    });
+} else {
+    setTimeout(window.loadAdminDashboard, 100);
+}
+
+console.log('=== ADMIN DASHBOARD SCRIPT END ===');
+</script>

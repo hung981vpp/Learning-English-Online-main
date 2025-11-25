@@ -1,0 +1,606 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.course-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.badge-level {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.search-box {
+    max-width: 300px;
+}
+
+/* Fix modal z-index */
+.modal-backdrop {
+    z-index: 10000 !important;
+}
+
+.modal {
+    z-index: 10001 !important;
+}
+
+.modal-dialog {
+    position: relative;
+    z-index: 10002 !important;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 10003 !important;
+}
+
+.modal.show .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <!-- Page Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-1">Quản lý khóa học</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Khóa học</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+                        <i class="ti ti-plus me-1"></i>Thêm khóa học
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm khóa học...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="levelFilter">
+                        <option value="">Tất cả cấp độ</option>
+                        <option value="A1">A1 - Beginner</option>
+                        <option value="A2">A2 - Elementary</option>
+                        <option value="B1">B1 - Intermediate</option>
+                        <option value="B2">B2 - Upper Intermediate</option>
+                        <option value="C1">C1 - Advanced</option>
+                    </select>
+                </div>
+                <div class="col-md-5 text-end">
+                    <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
+                        <i class="ti ti-file-spreadsheet me-1"></i>Xuất Excel
+                    </button>
+                    <span class="text-muted">Tổng: <strong id="totalCourses">0</strong> khóa học</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Khóa học</th>
+                            <th>Cấp độ</th>
+                            <th>Giáo viên</th>
+                            <th>Học viên</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="coursesTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Course Modal -->
+<div class="modal fade" id="addCourseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm khóa học mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addCourseForm">
+                    <div class="mb-3">
+                        <label class="form-label">Tên khóa học <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenKhoaHoc" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" name="MoTa" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Giáo viên <span class="text-danger">*</span></label>
+                                <select class="form-select" name="NguoiTao" id="addTeacherSelect" required>
+                                    <option value="">Chọn giáo viên...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cấp độ CEFR</label>
+                                <select class="form-select" name="CapDoCEFR">
+                                    <option value="A1">A1 - Beginner</option>
+                                    <option value="A2">A2 - Elementary</option>
+                                    <option value="B1">B1 - Intermediate</option>
+                                    <option value="B2">B2 - Upper Intermediate</option>
+                                    <option value="C1">C1 - Advanced</option>
+                                    <option value="C2">C2 - Proficiency</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL ảnh bìa</label>
+                        <input type="text" class="form-control" name="AnhBia" placeholder="https://...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleAddCourse()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Course Modal -->
+<div class="modal fade" id="editCourseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa khóa học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCourseForm">
+                    <input type="hidden" name="MaKhoaHoc">
+                    <div class="mb-3">
+                        <label class="form-label">Tên khóa học <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenKhoaHoc" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" name="MoTa" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Giáo viên <span class="text-danger">*</span></label>
+                                <select class="form-select" name="NguoiTao" id="editTeacherSelect" required>
+                                    <option value="">Chọn giáo viên...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cấp độ CEFR</label>
+                                <select class="form-select" name="CapDoCEFR">
+                                    <option value="A1">A1 - Beginner</option>
+                                    <option value="A2">A2 - Elementary</option>
+                                    <option value="B1">B1 - Intermediate</option>
+                                    <option value="B2">B2 - Upper Intermediate</option>
+                                    <option value="C1">C1 - Advanced</option>
+                                    <option value="C2">C2 - Proficiency</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL ảnh bìa</label>
+                        <input type="text" class="form-control" name="AnhBia" placeholder="https://...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleEditCourse()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allCourses = [];
+let filteredCourses = [];
+let teachers = [];
+
+window.loadManageCourses = async function() {
+    // Move modals to body
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentElement.tagName !== 'BODY') {
+            document.body.appendChild(modal);
+        }
+    });
+    
+    await loadTeachers();
+    await loadCourses();
+    setupEventListeners();
+};
+
+async function loadTeachers() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/teachers', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            teachers = data.data;
+            populateTeacherSelects();
+        }
+    } catch (error) {
+        console.error('Error loading teachers:', error);
+    }
+}
+
+function populateTeacherSelects() {
+    const addSelect = document.getElementById('addTeacherSelect');
+    const editSelect = document.getElementById('editTeacherSelect');
+    
+    const options = teachers.map(t => 
+        `<option value="${t.MaNguoiDung}">${t.HoTen} (${t.Email})</option>`
+    ).join('');
+    
+    addSelect.innerHTML = '<option value="">Chọn giáo viên...</option>' + options;
+    editSelect.innerHTML = '<option value="">Chọn giáo viên...</option>' + options;
+}
+
+async function loadCourses() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allCourses = data.data;
+            filteredCourses = allCourses;
+            renderCourses(filteredCourses);
+            document.getElementById('totalCourses').textContent = allCourses.length;
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+        showError('Không thể tải danh sách khóa học');
+    }
+}
+
+function renderCourses(courses) {
+    const tbody = document.getElementById('coursesTableBody');
+    
+    if (courses.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                    <i class="ti ti-book fs-1"></i>
+                    <p class="mt-2">Không tìm thấy khóa học nào</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = courses.map(course => {
+        const levelMap = {
+            'A1': 'bg-success',
+            'A2': 'bg-info',
+            'B1': 'bg-primary',
+            'B2': 'bg-warning',
+            'C1': 'bg-danger',
+            'C2': 'bg-dark'
+        };
+        const levelClass = levelMap[course.CapDoCEFR] || 'bg-secondary';
+        const createdDate = new Date(course.NgayTao).toLocaleDateString('vi-VN');
+        // Fix image path - remove /frontend prefix if exists
+        let imgUrl = course.AnhBia || '/assets/images/products/s1.jpg';
+        if (imgUrl && imgUrl.startsWith('/frontend/')) {
+            imgUrl = imgUrl.replace('/frontend/', '/');
+        }
+        
+        return `
+            <tr>
+                <td>${course.MaKhoaHoc}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <img src="${imgUrl}" class="course-img me-2" onerror="this.src='/assets/images/products/s1.jpg'" alt="${course.TenKhoaHoc}">
+                        <div>
+                            <div class="fw-semibold">${course.TenKhoaHoc}</div>
+                            <small class="text-muted">${course.TongSoBaiHoc || 0} bài học</small>
+                        </div>
+                    </div>
+                </td>
+                <td><span class="badge ${levelClass} badge-level">${course.CapDoCEFR || '-'}</span></td>
+                <td>${course.TenNguoiTao || 'Admin'}</td>
+                <td>${course.SoHocVien || 0}</td>
+                <td>${createdDate}</td>
+                <td><span class="badge bg-success-subtle text-success">Hoạt động</span></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-light-primary action-btn me-1" onclick="editCourse(${course.MaKhoaHoc})" title="Chỉnh sửa">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light-danger action-btn" onclick="deleteCourse(${course.MaKhoaHoc})" title="Xóa">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterCourses(searchTerm, document.getElementById('levelFilter').value);
+    });
+    
+    document.getElementById('levelFilter').addEventListener('change', (e) => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filterCourses(searchTerm, e.target.value);
+    });
+}
+
+function filterCourses(searchTerm, levelFilter) {
+    filteredCourses = allCourses.filter(course => {
+        const matchSearch = course.TenKhoaHoc.toLowerCase().includes(searchTerm) || 
+                          (course.MoTa && course.MoTa.toLowerCase().includes(searchTerm));
+        const matchLevel = !levelFilter || course.CapDo === levelFilter;
+        return matchSearch && matchLevel;
+    });
+    
+    renderCourses(filteredCourses);
+}
+
+async function handleAddCourse() {
+    const form = document.getElementById('addCourseForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    
+    const courseData = {
+        TenKhoaHoc: formData.get('TenKhoaHoc'),
+        MoTa: formData.get('MoTa'),
+        CapDoCEFR: formData.get('CapDoCEFR'),
+        AnhBia: formData.get('AnhBia'),
+        NguoiTao: parseInt(formData.get('NguoiTao'))
+    };
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/courses', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(courseData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addCourseModal')).hide();
+            form.reset();
+            await loadCourses();
+            showSuccess('Thêm khóa học thành công!');
+        } else {
+            showError(data.message || 'Không thể thêm khóa học');
+        }
+    } catch (error) {
+        console.error('Error adding course:', error);
+        showError('Có lỗi xảy ra khi thêm khóa học');
+    }
+}
+
+function editCourse(courseId) {
+    const course = allCourses.find(c => c.MaKhoaHoc === courseId);
+    if (!course) return;
+    
+    const form = document.getElementById('editCourseForm');
+    form.querySelector('[name="MaKhoaHoc"]').value = course.MaKhoaHoc;
+    form.querySelector('[name="TenKhoaHoc"]').value = course.TenKhoaHoc;
+    form.querySelector('[name="MoTa"]').value = course.MoTa || '';
+    form.querySelector('[name="CapDoCEFR"]').value = course.CapDoCEFR || 'A1';
+    form.querySelector('[name="AnhBia"]').value = course.AnhBia || '';
+    form.querySelector('[name="NguoiTao"]').value = course.NguoiTao || '';
+    
+    new bootstrap.Modal(document.getElementById('editCourseModal')).show();
+}
+
+async function handleEditCourse() {
+    const form = document.getElementById('editCourseForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    const courseId = formData.get('MaKhoaHoc');
+    
+    const courseData = {
+        TenKhoaHoc: formData.get('TenKhoaHoc'),
+        MoTa: formData.get('MoTa'),
+        CapDoCEFR: formData.get('CapDoCEFR'),
+        AnhBia: formData.get('AnhBia'),
+        NguoiTao: parseInt(formData.get('NguoiTao'))
+    };
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/courses/${courseId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(courseData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editCourseModal')).hide();
+            await loadCourses();
+            showSuccess('Cập nhật khóa học thành công!');
+        } else {
+            showError(data.message || 'Không thể cập nhật khóa học');
+        }
+    } catch (error) {
+        console.error('Error updating course:', error);
+        showError('Có lỗi xảy ra khi cập nhật khóa học');
+    }
+}
+
+async function deleteCourse(courseId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa khóa học này?')) return;
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/courses/${courseId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await loadCourses();
+            showSuccess('Xóa khóa học thành công!');
+        } else {
+            showError(data.message || 'Không thể xóa khóa học');
+        }
+    } catch (error) {
+        console.error('Error deleting course:', error);
+        showError('Có lỗi xảy ra khi xóa khóa học');
+    }
+}
+
+function showSuccess(message) {
+    alert(message);
+}
+
+function showError(message) {
+    alert(message);
+}
+
+function exportToExcel() {
+    // Load SheetJS library if not loaded
+    if (typeof XLSX === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+        script.onload = () => performExport();
+        document.head.appendChild(script);
+    } else {
+        performExport();
+    }
+}
+
+function performExport() {
+    // Prepare data for export
+    const exportData = filteredCourses.map(course => ({
+        'ID': course.MaKhoaHoc,
+        'Tên khóa học': course.TenKhoaHoc,
+        'Mô tả': course.MoTa || '',
+        'Cấp độ': course.CapDoCEFR || '',
+        'Người tạo': course.TenNguoiTao || 'Admin',
+        'Số bài học': course.TongSoBaiHoc || 0,
+        'Số học viên': course.SoHocVien || 0,
+        'Ngày tạo': new Date(course.NgayTao).toLocaleDateString('vi-VN')
+    }));
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 8 },  // ID
+        { wch: 30 }, // Tên khóa học
+        { wch: 40 }, // Mô tả
+        { wch: 10 }, // Cấp độ
+        { wch: 20 }, // Người tạo
+        { wch: 12 }, // Số bài học
+        { wch: 12 }, // Số học viên
+        { wch: 15 }  // Ngày tạo
+    ];
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Khóa học');
+    
+    // Generate filename with current date
+    const filename = `Danh_sach_khoa_hoc_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    // Save file
+    XLSX.writeFile(wb, filename);
+    
+    showSuccess('Xuất file Excel thành công!');
+}
+
+// Auto load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadManageCourses, 100);
+    });
+} else {
+    setTimeout(window.loadManageCourses, 100);
+}
+</script>

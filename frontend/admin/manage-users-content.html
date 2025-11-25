@@ -1,0 +1,518 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.badge-role {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.search-box {
+    max-width: 300px;
+}
+
+/* Fix modal z-index and positioning */
+.modal-backdrop {
+    z-index: 10000 !important;
+}
+
+.modal {
+    z-index: 10001 !important;
+}
+
+.modal-dialog {
+    position: relative;
+    z-index: 10002 !important;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 10003 !important;
+}
+
+/* Center modal */
+.modal.show .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <!-- Page Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-1">Quản lý người dùng</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Người dùng</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                        <i class="ti ti-plus me-1"></i>Thêm người dùng
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm người dùng...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="roleFilter">
+                        <option value="">Tất cả vai trò</option>
+                        <option value="1">Học viên</option>
+                        <option value="2">Giáo viên</option>
+                        <option value="3">Quản trị viên</option>
+                    </select>
+                </div>
+                <div class="col-md-5 text-end">
+                    <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
+                        <i class="ti ti-file-spreadsheet me-1"></i>Xuất Excel
+                    </button>
+                    <span class="text-muted">Tổng: <strong id="totalUsers">0</strong> người dùng</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Họ tên</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Ngày tạo</th>
+                            <th>Trạng thái</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm người dùng mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="HoTen" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="Email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" name="MatKhau" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò <span class="text-danger">*</span></label>
+                        <select class="form-select" name="MaVaiTro" required>
+                            <option value="1">Học viên</option>
+                            <option value="2">Giáo viên</option>
+                            <option value="3">Quản trị viên</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleAddUser()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa người dùng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" name="MaNguoiDung">
+                    <div class="mb-3">
+                        <label class="form-label">Họ tên <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="HoTen" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="Email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Vai trò <span class="text-danger">*</span></label>
+                        <select class="form-select" name="MaVaiTro" required>
+                            <option value="1">Học viên</option>
+                            <option value="2">Giáo viên</option>
+                            <option value="3">Quản trị viên</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleEditUser()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allUsers = [];
+let filteredUsers = [];
+
+window.loadManageUsers = async function() {
+    // Move modals to body to fix z-index issues
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentElement.tagName !== 'BODY') {
+            document.body.appendChild(modal);
+        }
+    });
+    
+    await loadUsers();
+    setupEventListeners();
+};
+
+async function loadUsers() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/users', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allUsers = data.data;
+            filteredUsers = allUsers;
+            renderUsers(filteredUsers);
+            document.getElementById('totalUsers').textContent = allUsers.length;
+        }
+    } catch (error) {
+        console.error('Error loading users:', error);
+        showError('Không thể tải danh sách người dùng');
+    }
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('usersTableBody');
+    
+    if (users.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="ti ti-users fs-1"></i>
+                    <p class="mt-2">Không tìm thấy người dùng nào</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = users.map(user => {
+        const roleMap = {
+            1: { text: 'Học viên', class: 'bg-primary' },
+            2: { text: 'Giáo viên', class: 'bg-success' },
+            3: { text: 'Admin', class: 'bg-danger' }
+        };
+        
+        const role = roleMap[user.MaVaiTro] || { text: 'Unknown', class: 'bg-secondary' };
+        const createdDate = new Date(user.NgayTao).toLocaleDateString('vi-VN');
+        
+        return `
+            <tr>
+                <td>${user.MaNguoiDung}</td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar bg-light-primary text-primary d-flex align-items-center justify-content-center me-2">
+                            <i class="ti ti-user"></i>
+                        </div>
+                        <span class="fw-semibold">${user.HoTen}</span>
+                    </div>
+                </td>
+                <td>${user.Email}</td>
+                <td><span class="badge ${role.class} badge-role">${role.text}</span></td>
+                <td>${createdDate}</td>
+                <td><span class="badge bg-success-subtle text-success">Hoạt động</span></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-light-primary action-btn me-1" onclick="editUser(${user.MaNguoiDung})" title="Chỉnh sửa">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light-danger action-btn" onclick="deleteUser(${user.MaNguoiDung})" title="Xóa">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function setupEventListeners() {
+    // Search
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterUsers(searchTerm, document.getElementById('roleFilter').value);
+    });
+    
+    // Role filter
+    document.getElementById('roleFilter').addEventListener('change', (e) => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filterUsers(searchTerm, e.target.value);
+    });
+}
+
+function filterUsers(searchTerm, roleFilter) {
+    filteredUsers = allUsers.filter(user => {
+        const matchSearch = user.HoTen.toLowerCase().includes(searchTerm) || 
+                          user.Email.toLowerCase().includes(searchTerm);
+        const matchRole = !roleFilter || user.MaVaiTro.toString() === roleFilter;
+        return matchSearch && matchRole;
+    });
+    
+    renderUsers(filteredUsers);
+}
+
+async function handleAddUser() {
+    const form = document.getElementById('addUserForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    
+    const userData = {
+        HoTen: formData.get('HoTen'),
+        Email: formData.get('Email'),
+        MatKhau: formData.get('MatKhau'),
+        MaVaiTro: parseInt(formData.get('MaVaiTro'))
+    };
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/users', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addUserModal')).hide();
+            form.reset();
+            await loadUsers();
+            showSuccess('Thêm người dùng thành công!');
+        } else {
+            showError(data.message || 'Không thể thêm người dùng');
+        }
+    } catch (error) {
+        console.error('Error adding user:', error);
+        showError('Có lỗi xảy ra khi thêm người dùng');
+    }
+}
+
+function editUser(userId) {
+    const user = allUsers.find(u => u.MaNguoiDung === userId);
+    if (!user) return;
+    
+    const form = document.getElementById('editUserForm');
+    form.querySelector('[name="MaNguoiDung"]').value = user.MaNguoiDung;
+    form.querySelector('[name="HoTen"]').value = user.HoTen;
+    form.querySelector('[name="Email"]').value = user.Email;
+    form.querySelector('[name="MaVaiTro"]').value = user.MaVaiTro;
+    
+    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+}
+
+async function handleEditUser() {
+    const form = document.getElementById('editUserForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    const userId = formData.get('MaNguoiDung');
+    
+    const userData = {
+        HoTen: formData.get('HoTen'),
+        Email: formData.get('Email'),
+        MaVaiTro: parseInt(formData.get('MaVaiTro'))
+    };
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/users/${userId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editUserModal')).hide();
+            await loadUsers();
+            showSuccess('Cập nhật người dùng thành công!');
+        } else {
+            showError(data.message || 'Không thể cập nhật người dùng');
+        }
+    } catch (error) {
+        console.error('Error updating user:', error);
+        showError('Có lỗi xảy ra khi cập nhật người dùng');
+    }
+}
+
+async function deleteUser(userId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa người dùng này?')) return;
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await loadUsers();
+            showSuccess('Xóa người dùng thành công!');
+        } else {
+            showError(data.message || 'Không thể xóa người dùng');
+        }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        showError('Có lỗi xảy ra khi xóa người dùng');
+    }
+}
+
+function showSuccess(message) {
+    alert(message);
+}
+
+function showError(message) {
+    alert(message);
+}
+
+function exportToExcel() {
+    // Load SheetJS library if not loaded
+    if (typeof XLSX === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+        script.onload = () => performExport();
+        document.head.appendChild(script);
+    } else {
+        performExport();
+    }
+}
+
+function performExport() {
+    const roleMap = { 1: 'Học viên', 2: 'Giáo viên', 3: 'Quản trị viên' };
+    
+    // Prepare data for export
+    const exportData = filteredUsers.map(user => ({
+        'ID': user.MaNguoiDung,
+        'Họ tên': user.HoTen,
+        'Email': user.Email,
+        'Vai trò': roleMap[user.MaVaiTro] || 'Unknown',
+        'Ngày tạo': new Date(user.NgayTao).toLocaleDateString('vi-VN')
+    }));
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 8 },  // ID
+        { wch: 25 }, // Họ tên
+        { wch: 30 }, // Email
+        { wch: 15 }, // Vai trò
+        { wch: 15 }  // Ngày tạo
+    ];
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Người dùng');
+    
+    // Generate filename with current date
+    const filename = `Danh_sach_nguoi_dung_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    // Save file
+    XLSX.writeFile(wb, filename);
+    
+    showSuccess('Xuất file Excel thành công!');
+}
+
+// Auto load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadManageUsers, 100);
+    });
+} else {
+    setTimeout(window.loadManageUsers, 100);
+}
+</script>

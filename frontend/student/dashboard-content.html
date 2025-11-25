@@ -1,0 +1,454 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.stat-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.activity-item {
+    border-left: 3px solid #e9ecef;
+    padding-left: 1rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s;
+}
+
+.activity-item:hover {
+    border-left-color: #5d87ff;
+}
+
+.progress-ring {
+    width: 120px;
+    height: 120px;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <!-- Welcome Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4" style="margin-top: 0 !important;">
+        <div class="card-body px-4 py-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h3 class="fw-bold mb-2 text-dark">Xin chào, <span id="user-name">Học viên</span>! 👋</h3>
+                    <p class="mb-0 text-muted">Chào mừng bạn quay trở lại. Hãy tiếp tục hành trình học tập của bạn!</p>
+                </div>
+                <div class="col-md-4 text-end">
+                    <div class="text-muted">
+                        <small>Hôm nay</small>
+                        <h5 class="mb-0 text-dark" id="current-date"></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-primary-subtle text-primary me-3">
+                            <i class="ti ti-book"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Khóa học</h6>
+                            <h3 class="mb-0 fw-bold" id="total-courses">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-success-subtle text-success me-3">
+                            <i class="ti ti-file-pencil"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Bài kiểm tra</h6>
+                            <h3 class="mb-0 fw-bold" id="total-quizzes">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-warning-subtle text-warning me-3">
+                            <i class="ti ti-cards"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Flashcard</h6>
+                            <h3 class="mb-0 fw-bold" id="total-flashcards">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-sm-6">
+            <div class="card stat-card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="stat-icon bg-info-subtle text-info me-3">
+                            <i class="ti ti-trophy"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted mb-1">Điểm TB</h6>
+                            <h3 class="mb-0 fw-bold" id="avg-score">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Main Content -->
+    <div class="row mt-4">
+        <!-- Learning Progress -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-chart-line me-2"></i>Tiến độ học tập
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="progress-ring mx-auto mb-3" style="position: relative;">
+                                <svg width="120" height="120">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="10"/>
+                                    <circle id="courses-progress-circle" cx="60" cy="60" r="50" fill="none" stroke="#5d87ff" stroke-width="10" 
+                                            stroke-dasharray="314" stroke-dashoffset="314" 
+                                            style="transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s ease;"/>
+                                </svg>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                    <h4 class="mb-0 fw-bold" id="courses-percent">0%</h4>
+                                </div>
+                            </div>
+                            <h6 class="text-muted">Khóa học</h6>
+                            <p class="mb-0"><span id="completed-courses">0</span>/<span id="enrolled-courses">0</span> hoàn thành</p>
+                        </div>
+
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="progress-ring mx-auto mb-3" style="position: relative;">
+                                <svg width="120" height="120">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="10"/>
+                                    <circle id="quizzes-progress-circle" cx="60" cy="60" r="50" fill="none" stroke="#13deb9" stroke-width="10" 
+                                            stroke-dasharray="314" stroke-dashoffset="314" 
+                                            style="transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s ease;"/>
+                                </svg>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                    <h4 class="mb-0 fw-bold" id="quizzes-percent">0%</h4>
+                                </div>
+                            </div>
+                            <h6 class="text-muted">Bài kiểm tra</h6>
+                            <p class="mb-0"><span id="passed-quizzes">0</span> đã làm</p>
+                        </div>
+
+                        <div class="col-md-4 text-center mb-3">
+                            <div class="progress-ring mx-auto mb-3" style="position: relative;">
+                                <svg width="120" height="120">
+                                    <circle cx="60" cy="60" r="50" fill="none" stroke="#e9ecef" stroke-width="10"/>
+                                    <circle id="flashcards-progress-circle" cx="60" cy="60" r="50" fill="none" stroke="#ffae1f" stroke-width="10" 
+                                            stroke-dasharray="314" stroke-dashoffset="314" 
+                                            style="transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset 1s ease;"/>
+                                </svg>
+                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+                                    <h4 class="mb-0 fw-bold" id="flashcards-percent">0%</h4>
+                                </div>
+                            </div>
+                            <h6 class="text-muted">Flashcard</h6>
+                            <p class="mb-0"><span id="learned-flashcards">0</span> đã nhớ</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-clock-hour-4 me-2"></i>Hoạt động gần đây
+                    </h5>
+                    <div id="recent-activities">
+                        <div class="text-center py-4 text-muted">
+                            <i class="ti ti-inbox fs-1"></i>
+                            <p class="mt-2">Chưa có hoạt động nào</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Courses -->
+        <div class="col-lg-4">
+            <!-- Quick Actions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">
+                        <i class="ti ti-bolt me-2"></i>Hành động nhanh
+                    </h5>
+                    <div class="d-grid gap-2">
+                        <a href="/pages/courses.html" class="btn btn-primary">
+                            <i class="ti ti-search me-2"></i>Tìm khóa học
+                        </a>
+                        <a href="/pages/quiz.html" class="btn btn-success">
+                            <i class="ti ti-file-pencil me-2"></i>Làm bài kiểm tra
+                        </a>
+                        <a href="/pages/flashcard.html" class="btn btn-warning">
+                            <i class="ti ti-cards me-2"></i>Học Flashcard
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My Courses -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-3">
+                        <i class="ti ti-book-2 me-2"></i>Khóa học của tôi
+                    </h5>
+                    <div id="my-courses-list">
+                        <div class="text-center py-4 text-muted">
+                            <i class="ti ti-book-off fs-1"></i>
+                            <p class="mt-2">Chưa có khóa học nào</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+console.log('=== DASHBOARD SCRIPT START ===');
+
+window.loadDashboard = async function() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        document.getElementById('user-name').textContent = user.hoTen || 'Học viên';
+        
+        const today = new Date();
+        const dateStr = today.toLocaleDateString('vi-VN', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+        });
+        document.getElementById('current-date').textContent = dateStr;
+
+        await loadStatistics();
+        await loadRecentActivities();
+        await loadMyCourses();
+    } catch (error) {
+        console.error('Load dashboard error:', error);
+    }
+};
+
+async function loadStatistics() {
+    // Load enrolled courses from API
+    let enrolledCourses = [];
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:3001/api/courses/my/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            enrolledCourses = data.data || [];
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
+    
+    document.getElementById('total-courses').textContent = enrolledCourses.length;
+    document.getElementById('enrolled-courses').textContent = enrolledCourses.length;
+    
+    const quizResults = Object.keys(localStorage).filter(key => key.startsWith('quiz_result_'));
+    document.getElementById('total-quizzes').textContent = quizResults.length;
+    document.getElementById('passed-quizzes').textContent = quizResults.length;
+    
+    const flashcardProgress = JSON.parse(localStorage.getItem('flashcard_progress') || '{}');
+    let totalFlashcards = 0;
+    let learnedFlashcards = 0;
+    
+    Object.values(flashcardProgress).forEach(setProgress => {
+        Object.values(setProgress).forEach(card => {
+            totalFlashcards++;
+            if (card.status === 'learned') learnedFlashcards++;
+        });
+    });
+    
+    document.getElementById('total-flashcards').textContent = learnedFlashcards;
+    document.getElementById('learned-flashcards').textContent = learnedFlashcards;
+    
+    let totalScore = 0;
+    let count = 0;
+    quizResults.forEach(key => {
+        const result = JSON.parse(localStorage.getItem(key) || '{}');
+        if (result.totalScore) {
+            totalScore += result.totalScore;
+            count++;
+        }
+    });
+    const avgScore = count > 0 ? Math.round(totalScore / count) : 0;
+    document.getElementById('avg-score').textContent = avgScore;
+    
+    updateProgressCircle('courses-progress-circle', 'courses-percent', 0, enrolledCourses.length);
+    updateProgressCircle('quizzes-progress-circle', 'quizzes-percent', quizResults.length, 10);
+    updateProgressCircle('flashcards-progress-circle', 'flashcards-percent', learnedFlashcards, totalFlashcards || 1);
+}
+
+function updateProgressCircle(circleId, percentId, current, total) {
+    const percent = total > 0 ? Math.round((current / total) * 100) : 0;
+    const circumference = 314;
+    const offset = circumference - (percent / 100) * circumference;
+    
+    setTimeout(() => {
+        document.getElementById(circleId).style.strokeDashoffset = offset;
+        document.getElementById(percentId).textContent = percent + '%';
+    }, 100);
+}
+
+async function loadRecentActivities() {
+    const activities = [];
+    const quizKeys = Object.keys(localStorage).filter(key => key.startsWith('quiz_result_'));
+    quizKeys.slice(-5).forEach(key => {
+        const result = JSON.parse(localStorage.getItem(key));
+        if (result.completedAt) {
+            activities.push({
+                type: 'quiz',
+                title: result.quizTitle || 'Bài kiểm tra',
+                score: result.totalScore,
+                time: new Date(result.completedAt)
+            });
+        }
+    });
+    
+    activities.sort((a, b) => b.time - a.time);
+    
+    if (activities.length === 0) return;
+    
+    const html = activities.slice(0, 5).map(activity => {
+        const scoreColor = activity.score >= 80 ? 'success' : activity.score >= 60 ? 'warning' : 'danger';
+        
+        return `
+        <div class="activity-item">
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    <div class="rounded-circle bg-primary-subtle p-2">
+                        <i class="ti ti-file-pencil text-primary fs-5"></i>
+                    </div>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1 fw-bold text-dark">${activity.title}</h6>
+                            <small class="text-muted">
+                                <i class="ti ti-clock fs-6 me-1"></i>${formatTimeAgo(activity.time)}
+                            </small>
+                        </div>
+                        <span class="badge bg-${scoreColor}-subtle text-${scoreColor} rounded-pill px-3">
+                            ${activity.score} điểm
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    }).join('');
+    
+    document.getElementById('recent-activities').innerHTML = html;
+}
+
+async function loadMyCourses() {
+    let enrolledCourses = [];
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:3001/api/courses/my/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            enrolledCourses = data.data || [];
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
+    
+    if (enrolledCourses.length === 0) return;
+    
+    const html = enrolledCourses.slice(0, 3).map(course => {
+        // Calculate progress based on completed lessons
+        const progress = course.TienDo || 0;
+        const courseName = course.TenKhoaHoc || course.tenKhoaHoc || 'Khóa học';
+        
+        return `
+        <div class="mb-3 pb-3 border-bottom">
+            <h6 class="mb-2 fw-bold text-dark">${courseName}</h6>
+            <div class="d-flex justify-content-between mb-1">
+                <small class="text-muted">Tiến độ</small>
+                <small class="text-primary fw-bold">${progress}%</small>
+            </div>
+            <div class="progress" style="height: 8px; border-radius: 10px;">
+                <div class="progress-bar bg-primary" style="width: ${progress}%; border-radius: 10px;"></div>
+            </div>
+        </div>
+    `;
+    }).join('');
+    
+    document.getElementById('my-courses-list').innerHTML = html + 
+        `<a href="/student/my-courses.html" class="btn btn-sm btn-primary w-100 mt-3">
+            <i class="ti ti-arrow-right me-1"></i>Xem tất cả khóa học
+        </a>`;
+}
+
+function formatTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return 'Vừa xong';
+    if (seconds < 3600) return Math.floor(seconds / 60) + ' phút trước';
+    if (seconds < 86400) return Math.floor(seconds / 3600) + ' giờ trước';
+    return Math.floor(seconds / 86400) + ' ngày trước';
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadDashboard, 100);
+    });
+} else {
+    setTimeout(window.loadDashboard, 100);
+}
+
+console.log('=== DASHBOARD SCRIPT END ===');
+</script>

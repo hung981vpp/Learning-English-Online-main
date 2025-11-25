@@ -1,0 +1,620 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.search-box {
+    max-width: 300px;
+}
+
+.modal-backdrop {
+    z-index: 10000 !important;
+}
+
+.modal {
+    z-index: 10001 !important;
+}
+
+.modal-dialog {
+    position: relative;
+    z-index: 10002 !important;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 10003 !important;
+}
+
+.modal.show .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-1">Quản lý Flashcard</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Flashcard</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addFlashcardModal">
+                        <i class="ti ti-plus me-1"></i>Thêm flashcard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm flashcard...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="courseFilter">
+                        <option value="">Tất cả khóa học</option>
+                    </select>
+                </div>
+                <div class="col-md-5 text-end">
+                    <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
+                        <i class="ti ti-file-spreadsheet me-1"></i>Xuất Excel
+                    </button>
+                    <span class="text-muted">Tổng: <strong id="totalFlashcards">0</strong> flashcards</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Mặt trước</th>
+                            <th>Mặt sau</th>
+                            <th>Khóa học</th>
+                            <th>Độ khó</th>
+                            <th>Ngày tạo</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="flashcardsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addFlashcardModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm flashcard mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addFlashcardForm">
+                    <div class="mb-3">
+                        <label class="form-label">Mặt trước (Front) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="MatTruoc" required placeholder="Ví dụ: Hello">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mặt sau (Back) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="MatSau" required placeholder="Ví dụ: Xin chào">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Gợi ý</label>
+                        <textarea class="form-control" name="GoiY" rows="2" placeholder="Gợi ý để nhớ từ..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên khóa học <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenKhoaHoc" id="courseNameInput" required placeholder="Nhập tên khóa học...">
+                        <small class="text-muted">Hoặc chọn từ danh sách bên dưới</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Chọn khóa học có sẵn</label>
+                                <select class="form-select" name="MaKhoaHoc" id="courseSelect" onchange="updateCourseName()">
+                                    <option value="">-- Chọn khóa học có sẵn --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Độ khó</label>
+                                <select class="form-select" name="DoKho">
+                                    <option value="1">Dễ</option>
+                                    <option value="2" selected>Trung bình</option>
+                                    <option value="3">Khó</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ví dụ</label>
+                        <input type="text" class="form-control" name="ViDu" placeholder="Câu ví dụ sử dụng từ...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleAddFlashcard()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editFlashcardModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa flashcard</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editFlashcardForm">
+                    <input type="hidden" name="MaTheGhiNho">
+                    <div class="mb-3">
+                        <label class="form-label">Mặt trước (Front) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="MatTruoc" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mặt sau (Back) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="MatSau" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Gợi ý</label>
+                        <textarea class="form-control" name="GoiY" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tên khóa học <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenKhoaHoc" id="editCourseNameInput" required placeholder="Nhập tên khóa học...">
+                        <small class="text-muted">Hoặc chọn từ danh sách bên dưới</small>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Chọn khóa học có sẵn</label>
+                                <select class="form-select" name="MaKhoaHoc" id="editCourseSelect" onchange="updateEditCourseName()">
+                                    <option value="">-- Chọn khóa học có sẵn --</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Độ khó</label>
+                                <select class="form-select" name="DoKho">
+                                    <option value="1">Dễ</option>
+                                    <option value="2">Trung bình</option>
+                                    <option value="3">Khó</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Ví dụ</label>
+                        <input type="text" class="form-control" name="ViDu">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleEditFlashcard()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allFlashcards = [];
+let filteredFlashcards = [];
+let courses = [];
+
+window.loadManageFlashcards = async function() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentElement.tagName !== 'BODY') {
+            document.body.appendChild(modal);
+        }
+    });
+    
+    await loadCourses();
+    await loadFlashcards(); // This will also populate the filter
+    setupEventListeners();
+};
+
+async function loadCourses() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            courses = data.data;
+            populateCourseSelects();
+            populateCourseFilter();
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
+}
+
+function populateCourseSelects() {
+    const courseSelect = document.getElementById('courseSelect');
+    const editCourseSelect = document.getElementById('editCourseSelect');
+    
+    const options = courses.map(c => 
+        `<option value="${c.MaKhoaHoc}">${c.TenKhoaHoc}</option>`
+    ).join('');
+    
+    courseSelect.innerHTML = '<option value="">-- Chọn khóa học có sẵn --</option>' + options;
+    editCourseSelect.innerHTML = '<option value="">-- Chọn khóa học có sẵn --</option>' + options;
+}
+
+function updateCourseName() {
+    const courseSelect = document.getElementById('courseSelect');
+    const courseNameInput = document.getElementById('courseNameInput');
+    const selectedCourseId = courseSelect.value;
+    
+    if (selectedCourseId) {
+        const selectedCourse = courses.find(c => c.MaKhoaHoc == selectedCourseId);
+        if (selectedCourse) {
+            courseNameInput.value = selectedCourse.TenKhoaHoc;
+        }
+    }
+}
+
+function updateEditCourseName() {
+    const editCourseSelect = document.getElementById('editCourseSelect');
+    const editCourseNameInput = document.getElementById('editCourseNameInput');
+    const selectedCourseId = editCourseSelect.value;
+    
+    if (selectedCourseId) {
+        const selectedCourse = courses.find(c => c.MaKhoaHoc == selectedCourseId);
+        if (selectedCourse) {
+            editCourseNameInput.value = selectedCourse.TenKhoaHoc;
+        }
+    }
+}
+
+function populateCourseFilter() {
+    const courseFilter = document.getElementById('courseFilter');
+    
+    // Get unique flashcard sets from JSON
+    const uniqueSets = [...new Set(allFlashcards.map(c => c.TenKhoaHoc))];
+    
+    const options = uniqueSets.map(setName => 
+        `<option value="${setName}">${setName}</option>`
+    ).join('');
+    
+    courseFilter.innerHTML = '<option value="">Tất cả khóa học</option>' + options;
+}
+
+async function loadFlashcards() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/flashcards', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allFlashcards = data.data;
+            filteredFlashcards = allFlashcards;
+            renderFlashcards(filteredFlashcards);
+            document.getElementById('totalFlashcards').textContent = allFlashcards.length;
+            
+            // Populate filter after loading flashcards
+            populateCourseFilter();
+        }
+    } catch (error) {
+        console.error('Error loading flashcards:', error);
+        showError('Không thể tải danh sách flashcard');
+    }
+}
+
+function renderFlashcards(flashcards) {
+    const tbody = document.getElementById('flashcardsTableBody');
+    
+    if (flashcards.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="ti ti-cards fs-1"></i>
+                    <p class="mt-2">Không tìm thấy flashcard nào</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = flashcards.map(card => {
+        const difficultyMap = {
+            1: { text: 'Dễ', class: 'bg-success' },
+            2: { text: 'TB', class: 'bg-warning' },
+            3: { text: 'Khó', class: 'bg-danger' }
+        };
+        const difficulty = difficultyMap[card.DoKho] || { text: 'TB', class: 'bg-secondary' };
+        const createdDate = new Date(card.NgayTao).toLocaleDateString('vi-VN');
+        
+        return `
+            <tr>
+                <td>${card.MaTheGhiNho}</td>
+                <td>
+                    <div class="fw-semibold">${card.MatTruoc}</div>
+                    <small class="text-muted">${card.ViDu ? card.ViDu.substring(0, 30) + '...' : ''}</small>
+                </td>
+                <td>${card.MatSau}</td>
+                <td>${card.TenKhoaHoc || 'N/A'}</td>
+                <td><span class="badge ${difficulty.class}">${difficulty.text}</span></td>
+                <td>${createdDate}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-light-primary action-btn me-1" onclick="editFlashcard(${card.MaTheGhiNho})" title="Chỉnh sửa">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light-danger action-btn" onclick="deleteFlashcard(${card.MaTheGhiNho})" title="Xóa">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterFlashcards(searchTerm, document.getElementById('courseFilter').value);
+    });
+    
+    document.getElementById('courseFilter').addEventListener('change', (e) => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filterFlashcards(searchTerm, e.target.value);
+    });
+}
+
+function filterFlashcards(searchTerm, courseFilter) {
+    filteredFlashcards = allFlashcards.filter(card => {
+        const matchSearch = card.MatTruoc.toLowerCase().includes(searchTerm) || 
+                          card.MatSau.toLowerCase().includes(searchTerm);
+        const matchCourse = !courseFilter || card.TenKhoaHoc === courseFilter;
+        return matchSearch && matchCourse;
+    });
+    
+    renderFlashcards(filteredFlashcards);
+}
+
+async function handleAddFlashcard() {
+    const form = document.getElementById('addFlashcardForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    
+    const flashcardData = {
+        MatTruoc: formData.get('MatTruoc'),
+        MatSau: formData.get('MatSau'),
+        GoiY: formData.get('GoiY'),
+        TenKhoaHoc: formData.get('TenKhoaHoc'),
+        MaKhoaHoc: formData.get('MaKhoaHoc') ? parseInt(formData.get('MaKhoaHoc')) : null,
+        DoKho: parseInt(formData.get('DoKho')),
+        ViDu: formData.get('ViDu')
+    };
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/flashcards', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(flashcardData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addFlashcardModal')).hide();
+            form.reset();
+            await loadFlashcards();
+            showSuccess('Thêm flashcard thành công!');
+        } else {
+            showError(data.message || 'Không thể thêm flashcard');
+        }
+    } catch (error) {
+        console.error('Error adding flashcard:', error);
+        showError('Có lỗi xảy ra khi thêm flashcard');
+    }
+}
+
+function editFlashcard(cardId) {
+    const card = allFlashcards.find(c => c.MaTheGhiNho === cardId);
+    if (!card) return;
+    
+    const form = document.getElementById('editFlashcardForm');
+    form.querySelector('[name="MaTheGhiNho"]').value = card.MaTheGhiNho;
+    form.querySelector('[name="MatTruoc"]').value = card.MatTruoc;
+    form.querySelector('[name="MatSau"]').value = card.MatSau;
+    form.querySelector('[name="GoiY"]').value = card.GoiY || '';
+    form.querySelector('[name="TenKhoaHoc"]').value = card.TenKhoaHoc || '';
+    form.querySelector('[name="MaKhoaHoc"]').value = card.MaKhoaHoc || '';
+    form.querySelector('[name="DoKho"]').value = card.DoKho || 2;
+    form.querySelector('[name="ViDu"]').value = card.ViDu || '';
+    
+    new bootstrap.Modal(document.getElementById('editFlashcardModal')).show();
+}
+
+async function handleEditFlashcard() {
+    const form = document.getElementById('editFlashcardForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    const cardId = formData.get('MaTheGhiNho');
+    
+    const flashcardData = {
+        MatTruoc: formData.get('MatTruoc'),
+        MatSau: formData.get('MatSau'),
+        GoiY: formData.get('GoiY'),
+        TenKhoaHoc: formData.get('TenKhoaHoc'),
+        MaKhoaHoc: formData.get('MaKhoaHoc') ? parseInt(formData.get('MaKhoaHoc')) : null,
+        DoKho: parseInt(formData.get('DoKho')),
+        ViDu: formData.get('ViDu')
+    };
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/flashcards/${cardId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(flashcardData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editFlashcardModal')).hide();
+            await loadFlashcards();
+            showSuccess('Cập nhật flashcard thành công!');
+        } else {
+            showError(data.message || 'Không thể cập nhật flashcard');
+        }
+    } catch (error) {
+        console.error('Error updating flashcard:', error);
+        showError('Có lỗi xảy ra khi cập nhật flashcard');
+    }
+}
+
+async function deleteFlashcard(cardId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa flashcard này?')) return;
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/flashcards/${cardId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await loadFlashcards();
+            showSuccess('Xóa flashcard thành công!');
+        } else {
+            showError(data.message || 'Không thể xóa flashcard');
+        }
+    } catch (error) {
+        console.error('Error deleting flashcard:', error);
+        showError('Có lỗi xảy ra khi xóa flashcard');
+    }
+}
+
+function exportToExcel() {
+    if (typeof XLSX === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+        script.onload = () => performExport();
+        document.head.appendChild(script);
+    } else {
+        performExport();
+    }
+}
+
+function performExport() {
+    const difficultyMap = { 1: 'Dễ', 2: 'Trung bình', 3: 'Khó' };
+    
+    const exportData = filteredFlashcards.map(card => ({
+        'ID': card.MaTheGhiNho,
+        'Mặt trước': card.MatTruoc,
+        'Mặt sau': card.MatSau,
+        'Gợi ý': card.GoiY || '',
+        'Ví dụ': card.ViDu || '',
+        'Khóa học': card.TenKhoaHoc || 'N/A',
+        'Độ khó': difficultyMap[card.DoKho] || 'Trung bình',
+        'Ngày tạo': new Date(card.NgayTao).toLocaleDateString('vi-VN')
+    }));
+    
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    ws['!cols'] = [
+        { wch: 8 },
+        { wch: 25 },
+        { wch: 25 },
+        { wch: 30 },
+        { wch: 40 },
+        { wch: 25 },
+        { wch: 12 },
+        { wch: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, 'Flashcards');
+    
+    const filename = `Danh_sach_flashcards_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, filename);
+    
+    showSuccess('Xuất file Excel thành công!');
+}
+
+function showSuccess(message) {
+    alert(message);
+}
+
+function showError(message) {
+    alert(message);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadManageFlashcards, 100);
+    });
+} else {
+    setTimeout(window.loadManageFlashcards, 100);
+}
+</script>

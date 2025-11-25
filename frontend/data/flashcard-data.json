@@ -1,0 +1,207 @@
+{
+  "flashcardSets": [
+    {
+      "id": 1,
+      "title": "Basic Vocabulary - Greetings",
+      "description": "Từ vựng cơ bản về chào hỏi và giới thiệu",
+      "topic": "Greetings",
+      "level": "A1",
+      "cards": [
+        {
+          "id": 1,
+          "front": "Hello",
+          "back": "Xin chào",
+          "example": "Hello, how are you?",
+          "phonetic": "/həˈloʊ/",
+          "type": "interjection"
+        },
+        {
+          "id": 2,
+          "front": "Goodbye",
+          "back": "Tạm biệt",
+          "example": "Goodbye, see you tomorrow!",
+          "phonetic": "/ɡʊdˈbaɪ/",
+          "type": "interjection"
+        },
+        {
+          "id": 3,
+          "front": "Thank you",
+          "back": "Cảm ơn",
+          "example": "Thank you for your help.",
+          "phonetic": "/θæŋk juː/",
+          "type": "phrase"
+        },
+        {
+          "id": 4,
+          "front": "Please",
+          "back": "Làm ơn",
+          "example": "Please help me.",
+          "phonetic": "/pliːz/",
+          "type": "adverb"
+        },
+        {
+          "id": 5,
+          "front": "Sorry",
+          "back": "Xin lỗi",
+          "example": "Sorry, I am late.",
+          "phonetic": "/ˈsɑːri/",
+          "type": "adjective"
+        },
+        {
+          "id": 6,
+          "front": "Excuse me",
+          "back": "Xin lỗi (để xin phép)",
+          "example": "Excuse me, can I ask a question?",
+          "phonetic": "/ɪkˈskjuːz miː/",
+          "type": "phrase"
+        },
+        {
+          "id": 7,
+          "front": "Welcome",
+          "back": "Chào mừng",
+          "example": "Welcome to our school!",
+          "phonetic": "/ˈwelkəm/",
+          "type": "interjection"
+        },
+        {
+          "id": 8,
+          "front": "Nice to meet you",
+          "back": "Rất vui được gặp bạn",
+          "example": "Nice to meet you, John.",
+          "phonetic": "/naɪs tuː miːt juː/",
+          "type": "phrase"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Basic Vocabulary - Numbers",
+      "description": "Từ vựng về số đếm và số thứ tự",
+      "topic": "Numbers",
+      "level": "A1",
+      "cards": [
+        {
+          "id": 9,
+          "front": "One",
+          "back": "Một",
+          "example": "I have one book.",
+          "phonetic": "/wʌn/",
+          "type": "number"
+        },
+        {
+          "id": 10,
+          "front": "Two",
+          "back": "Hai",
+          "example": "There are two cats.",
+          "phonetic": "/tuː/",
+          "type": "number"
+        },
+        {
+          "id": 11,
+          "front": "Three",
+          "back": "Ba",
+          "example": "I need three apples.",
+          "phonetic": "/θriː/",
+          "type": "number"
+        },
+        {
+          "id": 12,
+          "front": "Four",
+          "back": "Bốn",
+          "example": "She has four brothers.",
+          "phonetic": "/fɔːr/",
+          "type": "number"
+        },
+        {
+          "id": 13,
+          "front": "Five",
+          "back": "Năm",
+          "example": "Five students are absent.",
+          "phonetic": "/faɪv/",
+          "type": "number"
+        },
+        {
+          "id": 14,
+          "front": "Ten",
+          "back": "Mười",
+          "example": "I wake up at ten.",
+          "phonetic": "/ten/",
+          "type": "number"
+        },
+        {
+          "id": 15,
+          "front": "Twenty",
+          "back": "Hai mươi",
+          "example": "He is twenty years old.",
+          "phonetic": "/ˈtwenti/",
+          "type": "number"
+        },
+        {
+          "id": 16,
+          "front": "Hundred",
+          "back": "Trăm",
+          "example": "One hundred dollars.",
+          "phonetic": "/ˈhʌndrəd/",
+          "type": "number"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Intermediate Vocabulary - Work",
+      "description": "Từ vựng về công việc và nghề nghiệp",
+      "topic": "Work",
+      "level": "B1",
+      "cards": [
+        {
+          "id": 17,
+          "front": "Employee",
+          "back": "Nhân viên",
+          "example": "She is a good employee.",
+          "phonetic": "/ɪmˈplɔɪiː/",
+          "type": "noun"
+        },
+        {
+          "id": 18,
+          "front": "Manager",
+          "back": "Quản lý",
+          "example": "The manager called a meeting.",
+          "phonetic": "/ˈmænɪdʒər/",
+          "type": "noun"
+        },
+        {
+          "id": 19,
+          "front": "Salary",
+          "back": "Lương",
+          "example": "His salary is very high.",
+          "phonetic": "/ˈsæləri/",
+          "type": "noun"
+        },
+        {
+          "id": 20,
+          "front": "Meeting",
+          "back": "Cuộc họp",
+          "example": "We have a meeting at 3 PM.",
+          "phonetic": "/ˈmiːtɪŋ/",
+          "type": "noun"
+        },
+        {
+          "id": 21,
+          "front": "Deadline",
+          "back": "Hạn chót",
+          "example": "The deadline is tomorrow.",
+          "phonetic": "/ˈdedlaɪn/",
+          "type": "noun"
+        },
+        {
+          "id": 22,
+          "front": "Project",
+          "back": "Dự án",
+          "example": "This project is important.",
+          "phonetic": "/ˈprɑːdʒekt/",
+          "type": "noun"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+<style>
+.flashcard-set-card {
+    transition: transform 0.2s;
+}
+
+.flashcard-set-card:hover {
+    transform: translateY(-5px);
+}
+
+.progress-bar-custom {
+    height: 8px;
+    border-radius: 4px;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0 !important; padding-top: 0 !important;">
+    <!-- Page Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-3" style="margin-top: 0 !important;">
+        <div class="card-body px-4 py-2">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-1">Flashcard - Học từ vựng</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item">
+                                <a class="text-muted" href="dashboard.html">Trang chủ</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Flashcard</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3">
+                    <div class="text-center mb-n5">
+                        <img src="../assets/images/breadcrumb/ChatBc.png" alt="" class="img-fluid mb-n4" style="max-height: 70px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flashcard Sets Grid -->
+    <div class="row" id="flashcard-sets-container">
+        <div class="col-12 text-center py-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Đang tải...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+console.log('=== FLASHCARD CONTENT SCRIPT START ===');
+
+window.loadFlashcardSets = async function() {
+    try {
+        console.log('Loading flashcard sets from JSON...');
+        const response = await fetch('../data/flashcard-data.json');
+        const data = await response.json();
+        console.log('Flashcard sets data:', data);
+        
+        // Add progress info from localStorage
+        const setsWithProgress = data.flashcardSets.map(set => {
+            const progress = getSetProgress(set.id);
+            return {
+                ...set,
+                totalCards: set.cards.length,
+                learnedCards: progress.learned,
+                studyingCards: progress.studying
+            };
+        });
+        
+        displayFlashcardSets(setsWithProgress);
+    } catch (error) {
+        console.error('Load flashcard sets error:', error);
+        document.getElementById('flashcard-sets-container').innerHTML = `
+            <div class="col-12">
+                <div class="alert alert-danger">
+                    <i class="ti ti-alert-circle"></i> Không thể tải danh sách flashcard: ${error.message}
+                </div>
+            </div>
+        `;
+    }
+};
+
+function getSetProgress(setId) {
+    try {
+        const allProgress = JSON.parse(localStorage.getItem('flashcard_progress') || '{}');
+        const setProgress = allProgress[setId] || {};
+        
+        console.log('Getting progress for set', setId, ':', setProgress);
+        
+        let learned = 0;
+        let studying = 0;
+        
+        Object.values(setProgress).forEach(card => {
+            if (card.status === 'learned') learned++;
+            else if (card.status === 'studying') studying++;
+        });
+        
+        console.log('Set', setId, 'progress:', { learned, studying });
+        return { learned, studying };
+    } catch (error) {
+        console.error('Error getting progress:', error);
+        return { learned: 0, studying: 0 };
+    }
+}
+
+window.displayFlashcardSets = function(sets) {
+    const container = document.getElementById('flashcard-sets-container');
+    
+    if (!sets || sets.length === 0) {
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="ti ti-cards-off" style="font-size: 64px; color: #ccc;"></i>
+                        <h5 class="mt-3">Không có bộ flashcard nào</h5>
+                        <p class="text-muted">Hiện tại chưa có bộ flashcard khả dụng</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = sets.map(set => {
+        const progressPercent = set.totalCards > 0 ? Math.round((set.learnedCards / set.totalCards) * 100) : 0;
+        
+        return `
+        <div class="col-sm-6 col-lg-4">
+            <div class="card flashcard-set-card hover-img">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-primary-subtle text-primary rounded-3 py-1 px-2">
+                            ${set.topic || 'Chủ đề'}
+                        </span>
+                        ${set.level ? `<span class="badge bg-secondary-subtle text-secondary rounded-3 py-1 px-2 ms-2">${set.level}</span>` : ''}
+                    </div>
+                    
+                    <h5 class="card-title fw-semibold mb-2">${set.title}</h5>
+                    <p class="card-text text-dark mb-3" style="min-height: 48px;">
+                        ${set.description || 'Không có mô tả'}
+                    </p>
+                    
+                    ${set.learnedCards > 0 || set.studyingCards > 0 ? `
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">Tiến độ: ${progressPercent}%</small>
+                                <small class="text-muted">${set.learnedCards}/${set.totalCards} đã nhớ</small>
+                            </div>
+                            <div class="progress progress-bar-custom">
+                                <div class="progress-bar bg-success" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="d-flex align-items-center text-muted mb-3">
+                        <i class="ti ti-cards fs-5 me-2"></i>
+                        <span class="fs-3">${set.totalCards || 0} thẻ từ vựng</span>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" onclick="startStudy(${set.id})">
+                        <i class="ti ti-play"></i> ${set.learnedCards > 0 ? 'Tiếp tục học' : 'Bắt đầu học'}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    }).join('');
+};
+
+window.startStudy = function(setId) {
+    window.location.href = `flashcard-study.html?id=${setId}`;
+};
+
+// Auto load on page ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadFlashcardSets, 100);
+    });
+} else {
+    setTimeout(window.loadFlashcardSets, 100);
+}
+
+console.log('=== FLASHCARD CONTENT SCRIPT END ===');
+</script>

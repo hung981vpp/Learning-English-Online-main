@@ -15,7 +15,8 @@ function getCurrentUser() {
 function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = 'index.html'; // Về trang chủ (landing page)
+    // SỬA: Thêm dấu / ở đầu để luôn về trang chủ gốc, không tìm trong thư mục hiện tại
+    window.location.href = '/index.html'; 
 }
 
 // Check authentication and update navbar
@@ -55,8 +56,11 @@ function checkAuth() {
 // Require authentication for protected pages
 function requireAuth() {
     if (!isAuthenticated()) {
+        // Lưu URL hiện tại để redirect về sau khi login
+        sessionStorage.setItem('redirectAfterLogin', window.location.pathname);
         alert('Vui lòng đăng nhập để tiếp tục');
-        window.location.href = './login.html';
+        // SỬA: Dùng /login.html thay vì ./login.html để luôn tìm từ thư mục gốc
+        window.location.href = '/login.html';
         return false;
     }
     return true;
@@ -64,16 +68,18 @@ function requireAuth() {
 
 // Redirect if already authenticated (for login/register pages)
 function redirectIfAuthenticated() {
-    // Không cần đợi DOM vì chỉ check localStorage
     if (isAuthenticated()) {
         const user = getCurrentUser();
         if (user && user.isAdmin) {
-            window.location.replace('admin/dashboard.html');
+            // SỬA: Thêm / ở đầu
+            window.location.replace('/admin/dashboard.html');
         } else {
-            window.location.replace('index.html');
+            // SỬA: Thêm / ở đầu
+            window.location.replace('/index.html');
         }
     }
 }
+
 // Check if user is admin
 function isAdmin() {
     const user = getCurrentUser();

@@ -1,0 +1,414 @@
+<style>
+.quiz-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.question-card {
+    margin-bottom: 15px;
+}
+
+.question-card .card-body {
+    padding: 1rem;
+}
+
+.question-card h5 {
+    margin-bottom: 1rem;
+    font-size: 1rem;
+}
+
+.answer-option {
+    cursor: pointer;
+    transition: all 0.3s;
+    padding: 0.5rem 0.75rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.answer-option:hover {
+    background-color: #f8f9fa;
+}
+
+.answer-option input[type="radio"] {
+    cursor: pointer;
+}
+
+.answer-option label {
+    cursor: pointer;
+    width: 100%;
+}
+
+.timer-card {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.badge {
+    font-size: 0.875rem;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0 !important; padding-top: 0 !important;">
+    <!-- Timer -->
+    <div class="timer-card">
+        <div class="card bg-warning">
+            <div class="card-body p-3">
+                <h5 class="mb-0 text-white">
+                    <i class="ti ti-clock"></i>
+                    <span id="timer">00:00</span>
+                </h5>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-3" style="margin-top: 0 !important;">
+        <div class="card-body px-4 py-2">
+            <h4 class="fw-semibold mb-1" id="quiz-title">Đang tải...</h4>
+            <p class="mb-0 text-muted" id="quiz-description"></p>
+        </div>
+    </div>
+
+    <!-- Quiz Content -->
+    <div class="quiz-container">
+        <div id="quiz-questions">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Đang tải...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="card mt-4" id="submit-card">
+            <div class="card-body text-center">
+                <button class="btn btn-primary btn-lg" onclick="submitQuiz()" id="submit-btn" disabled>
+                    <i class="ti ti-send"></i> Nộp bài
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+console.log('=== QUIZ DETAIL SCRIPT START ===');
+
+let quizData = null;
+let userAnswers = {};
+let startTime = null;
+let timerInterval = null;
+let isSubmitted = false;
+
+window.loadQuiz = async function() {
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const quizId = urlParams.get('id');
+
+        console.log('Quiz ID:', quizId);
+
+        if (!quizId) {
+            throw new Error('Không tìm thấy ID bài kiểm tra');
+        }
+
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '../login.html';
+            return;
+        }
+
+        // Check if user has completed this quiz before
+        const savedResult = localStorage.getItem(`quiz_result_${quizId}`);
+        if (savedResult) {
+            const result = JSON.parse(savedResult);
+            quizData = { quiz: { TenBaiKiemTra: result.quizTitle, MoTa: result.quizDescription } };
+            document.getElementById('quiz-title').textContent = result.quizTitle;
+            document.getElementById('quiz-description').textContent = result.quizDescription || '';
+            showPreviousResult(result);
+            return;
+        }
+
+        console.log('Fetching quiz data...');
+        const response = await fetch(`http://localhost:3001/api/quizzes/${quizId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        const data = await response.json();
+        console.log('Quiz data:', data);
+
+        if (data.success) {
+            quizData = data.data;
+            displayQuiz();
+            startTimer();
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error('Load quiz error:', error);
+        document.getElementById('quiz-questions').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="ti ti-alert-circle"></i> ${error.message}
+            </div>
+        `;
+    }
+};
+
+function displayQuiz() {
+    document.getElementById('quiz-title').textContent = quizData.quiz.TenBaiKiemTra;
+    document.getElementById('quiz-description').textContent = quizData.quiz.MoTa || '';
+
+    const questionsHtml = quizData.questions.map((question, index) => `
+        <div class="card question-card">
+            <div class="card-body">
+                <h5 class="mb-3">
+                    <span class="badge bg-primary me-2">${index + 1}</span>
+                    ${question.NoiDungCauHoi}
+                </h5>
+                ${question.HinhAnh ? `<img src="${question.HinhAnh}" class="img-fluid mb-3" alt="Question image">` : ''}
+                ${question.AudioUrl ? `<audio controls class="w-100 mb-3"><source src="${question.AudioUrl}" type="audio/mpeg"></audio>` : ''}
+                
+                <div class="answers">
+                    ${question.DapAn.map(answer => `
+                        <div class="answer-option p-3 border rounded mb-2">
+                            <label class="d-flex align-items-center cursor-pointer mb-0 w-100">
+                                <input type="radio" 
+                                       name="question_${question.MaCauHoi}" 
+                                       value="${answer.MaDapAn}"
+                                       onchange="selectAnswer(${question.MaCauHoi}, ${answer.MaDapAn})"
+                                       class="me-3">
+                                <span>${answer.NoiDung}</span>
+                            </label>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `).join('');
+
+    document.getElementById('quiz-questions').innerHTML = questionsHtml;
+    document.getElementById('submit-btn').disabled = false;
+}
+
+window.selectAnswer = function(questionId, answerId) {
+    userAnswers[questionId] = answerId;
+    console.log('Answer selected:', { questionId, answerId });
+};
+
+function startTimer() {
+    startTime = Date.now();
+    const duration = quizData.quiz.ThoiGianLamBai * 60 * 1000;
+
+    timerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const remaining = duration - elapsed;
+
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            alert('Hết giờ! Bài kiểm tra sẽ được tự động nộp.');
+            submitQuiz();
+            return;
+        }
+
+        const minutes = Math.floor(remaining / 60000);
+        const seconds = Math.floor((remaining % 60000) / 1000);
+        document.getElementById('timer').textContent = 
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }, 1000);
+}
+
+window.submitQuiz = async function() {
+    if (Object.keys(userAnswers).length === 0) {
+        alert('Vui lòng trả lời ít nhất một câu hỏi');
+        return;
+    }
+
+    if (!confirm('Bạn có chắc chắn muốn nộp bài?')) {
+        return;
+    }
+
+    isSubmitted = true;
+    clearInterval(timerInterval);
+    timerInterval = null;
+
+    try {
+        const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+        const token = localStorage.getItem('token');
+
+        console.log('Submitting quiz...', { quizId: quizData.quiz.MaBaiKiemTra, answers: userAnswers, timeSpent });
+
+        const response = await fetch('http://localhost:3001/api/quizzes/submit', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                quizId: quizData.quiz.MaBaiKiemTra,
+                answers: userAnswers,
+                timeSpent
+            })
+        });
+
+        const data = await response.json();
+        console.log('Submit result:', data);
+
+        if (data.success) {
+            showResult(data.data);
+        } else {
+            throw new Error(data.message);
+        }
+    } catch (error) {
+        console.error('Submit quiz error:', error);
+        alert('Lỗi khi nộp bài: ' + error.message);
+    }
+};
+
+function showResult(result) {
+    // Hide timer
+    const timerCard = document.querySelector('.timer-card');
+    if (timerCard) timerCard.style.display = 'none';
+    
+    // Save result to localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizId = urlParams.get('id');
+    localStorage.setItem(`quiz_result_${quizId}`, JSON.stringify({
+        ...result,
+        quizTitle: quizData.quiz.TenBaiKiemTra,
+        quizDescription: quizData.quiz.MoTa,
+        completedAt: new Date().toISOString()
+    }));
+    
+    document.getElementById('quiz-questions').innerHTML = `
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="ti ti-trophy text-warning" style="font-size: 64px;"></i>
+                <h3 class="mt-3">Hoàn thành bài kiểm tra!</h3>
+                
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <h4 class="text-primary">${result.totalScore}</h4>
+                        <p class="text-muted">Tổng điểm</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-success">${result.correctCount}/${result.totalQuestions}</h4>
+                        <p class="text-muted">Câu đúng</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-info">${result.percentage}%</h4>
+                        <p class="text-muted">Tỷ lệ</p>
+                    </div>
+                </div>
+
+                ${result.listeningScore !== undefined ? `
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <p><strong>Listening:</strong> ${result.listeningScore}/50</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Reading:</strong> ${result.readingScore}/50</p>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="mt-4">
+                    <button class="btn btn-success me-2" onclick="retakeQuiz()">
+                        <i class="ti ti-refresh"></i> Làm lại
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='quiz.html'">
+                        <i class="ti ti-arrow-left"></i> Quay lại danh sách
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('submit-card').style.display = 'none';
+}
+
+function showPreviousResult(result) {
+    // Hide timer
+    const timerCard = document.querySelector('.timer-card');
+    if (timerCard) timerCard.style.display = 'none';
+    
+    document.getElementById('quiz-questions').innerHTML = `
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="ti ti-check-circle text-success" style="font-size: 64px;"></i>
+                <h3 class="mt-3">Bạn đã hoàn thành bài kiểm tra này</h3>
+                <p class="text-muted">Kết quả lần làm gần nhất</p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <h4 class="text-primary">${result.totalScore}</h4>
+                        <p class="text-muted">Tổng điểm</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-success">${result.correctCount}/${result.totalQuestions}</h4>
+                        <p class="text-muted">Câu đúng</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h4 class="text-info">${result.percentage}%</h4>
+                        <p class="text-muted">Tỷ lệ</p>
+                    </div>
+                </div>
+
+                ${result.listeningScore !== undefined ? `
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <p><strong>Listening:</strong> ${result.listeningScore}/50</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Reading:</strong> ${result.readingScore}/50</p>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <div class="mt-4">
+                    <button class="btn btn-success me-2" onclick="retakeQuiz()">
+                        <i class="ti ti-refresh"></i> Làm lại
+                    </button>
+                    <button class="btn btn-primary" onclick="window.location.href='quiz.html'">
+                        <i class="ti ti-arrow-left"></i> Quay lại danh sách
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('submit-card').style.display = 'none';
+}
+
+window.retakeQuiz = function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const quizId = urlParams.get('id');
+    
+    // Clear saved result
+    localStorage.removeItem(`quiz_result_${quizId}`);
+    
+    // Reload page
+    window.location.reload();
+};
+
+// Auto load on page ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadQuiz, 100);
+    });
+} else {
+    setTimeout(window.loadQuiz, 100);
+}
+
+// Prevent page refresh during quiz (but not after submit)
+window.addEventListener('beforeunload', (e) => {
+    if (!isSubmitted && quizData && Object.keys(userAnswers).length > 0 && timerInterval) {
+        e.preventDefault();
+        e.returnValue = 'Bạn có chắc muốn rời khỏi trang? Bài làm của bạn sẽ không được lưu.';
+    }
+});
+
+console.log('=== QUIZ DETAIL SCRIPT END ===');
+</script>

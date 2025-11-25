@@ -1,0 +1,346 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.settings-section {
+    margin-bottom: 2rem;
+}
+
+.settings-section h5 {
+    border-bottom: 2px solid #5d87ff;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-12">
+                    <h4 class="fw-semibold mb-1">Cài đặt hệ thống</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Cài đặt</li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Thông tin hệ thống -->
+            <div class="card settings-section">
+                <div class="card-body">
+                    <h5 class="fw-bold"><i class="ti ti-info-circle me-2"></i>Thông tin hệ thống</h5>
+                    <form id="systemInfoForm">
+                        <div class="mb-3">
+                            <label class="form-label">Tên hệ thống</label>
+                            <input type="text" class="form-control" name="systemName" value="Learning English Online">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả</label>
+                            <textarea class="form-control" name="systemDescription" rows="3">Hệ thống học tiếng Anh trực tuyến</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email liên hệ</label>
+                                    <input type="email" class="form-control" name="contactEmail" value="admin@learningenglish.com">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Số điện thoại</label>
+                                    <input type="text" class="form-control" name="contactPhone" value="0123456789">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveSystemInfo()">
+                            <i class="ti ti-device-floppy me-1"></i>Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cài đặt học tập -->
+            <div class="card settings-section">
+                <div class="card-body">
+                    <h5 class="fw-bold"><i class="ti ti-school me-2"></i>Cài đặt học tập</h5>
+                    <form id="learningSettingsForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Điểm đạt mặc định</label>
+                                    <input type="number" class="form-control" name="passingScore" value="5" min="0" max="10" step="0.5">
+                                    <small class="text-muted">Điểm tối thiểu để đạt bài kiểm tra</small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Số lần làm bài tối đa</label>
+                                    <input type="number" class="form-control" name="maxAttempts" value="3" min="1">
+                                    <small class="text-muted">Số lần được làm lại bài kiểm tra</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Thời gian làm bài mặc định (phút)</label>
+                                    <input type="number" class="form-control" name="defaultQuizTime" value="30" min="5">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Số câu hỏi mỗi bài</label>
+                                    <input type="number" class="form-control" name="questionsPerQuiz" value="10" min="5">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="allowRetake" checked>
+                                <label class="form-check-label" for="allowRetake">
+                                    Cho phép làm lại bài kiểm tra
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="showAnswers" checked>
+                                <label class="form-check-label" for="showAnswers">
+                                    Hiển thị đáp án sau khi làm bài
+                                </label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveLearningSettings()">
+                            <i class="ti ti-device-floppy me-1"></i>Lưu thay đổi
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Cài đặt email -->
+            <div class="card settings-section">
+                <div class="card-body">
+                    <h5 class="fw-bold"><i class="ti ti-mail me-2"></i>Cài đặt Email</h5>
+                    <form id="emailSettingsForm">
+                        <div class="mb-3">
+                            <label class="form-label">SMTP Host</label>
+                            <input type="text" class="form-control" name="smtpHost" placeholder="smtp.gmail.com">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">SMTP Port</label>
+                                    <input type="number" class="form-control" name="smtpPort" value="587">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Email gửi</label>
+                                    <input type="email" class="form-control" name="fromEmail" placeholder="noreply@learningenglish.com">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="enableEmail">
+                                <label class="form-check-label" for="enableEmail">
+                                    Bật gửi email tự động
+                                </label>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-primary" onclick="saveEmailSettings()">
+                            <i class="ti ti-device-floppy me-1"></i>Lưu thay đổi
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary ms-2" onclick="testEmail()">
+                            <i class="ti ti-send me-1"></i>Gửi email thử
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Thông tin phiên bản -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="ti ti-info-circle me-2"></i>Thông tin phiên bản</h5>
+                    <div class="mb-3">
+                        <small class="text-muted">Phiên bản hệ thống</small>
+                        <p class="mb-0 fw-bold">v1.0.0</p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Cập nhật lần cuối</small>
+                        <p class="mb-0 fw-bold" id="lastUpdate"></p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Database</small>
+                        <p class="mb-0 fw-bold">SQL Server</p>
+                    </div>
+                    <div class="mb-3">
+                        <small class="text-muted">Trạng thái</small>
+                        <p class="mb-0">
+                            <span class="badge bg-success-subtle text-success">
+                                <i class="ti ti-circle-filled"></i> Hoạt động
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thống kê nhanh -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="ti ti-chart-bar me-2"></i>Thống kê nhanh</h5>
+                    <div class="mb-3 d-flex justify-content-between">
+                        <span class="text-muted">Tổng người dùng</span>
+                        <span class="fw-bold" id="totalUsers">0</span>
+                    </div>
+                    <div class="mb-3 d-flex justify-content-between">
+                        <span class="text-muted">Tổng khóa học</span>
+                        <span class="fw-bold" id="totalCourses">0</span>
+                    </div>
+                    <div class="mb-3 d-flex justify-content-between">
+                        <span class="text-muted">Tổng bài kiểm tra</span>
+                        <span class="fw-bold" id="totalQuizzes">0</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted">Tổng flashcards</span>
+                        <span class="fw-bold" id="totalFlashcards">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hành động hệ thống -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3"><i class="ti ti-settings me-2"></i>Hành động hệ thống</h5>
+                    <button class="btn btn-outline-primary w-100 mb-2" onclick="clearCache()">
+                        <i class="ti ti-trash me-1"></i>Xóa cache
+                    </button>
+                    <button class="btn btn-outline-warning w-100 mb-2" onclick="backupDatabase()">
+                        <i class="ti ti-database-export me-1"></i>Sao lưu dữ liệu
+                    </button>
+                    <button class="btn btn-outline-info w-100" onclick="viewLogs()">
+                        <i class="ti ti-file-text me-1"></i>Xem logs hệ thống
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.loadSettings = async function() {
+    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('vi-VN');
+    await loadQuickStats();
+};
+
+async function loadQuickStats() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/dashboard/admin/stats', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            document.getElementById('totalUsers').textContent = data.data.totalUsers || 0;
+            document.getElementById('totalCourses').textContent = data.data.totalCourses || 0;
+            document.getElementById('totalQuizzes').textContent = data.data.totalQuizzes || 0;
+            document.getElementById('totalFlashcards').textContent = data.data.totalFlashcards || 0;
+        }
+    } catch (error) {
+        console.error('Error loading stats:', error);
+    }
+}
+
+function saveSystemInfo() {
+    const form = document.getElementById('systemInfoForm');
+    const formData = new FormData(form);
+    
+    // Save to localStorage for demo
+    localStorage.setItem('systemSettings', JSON.stringify({
+        systemName: formData.get('systemName'),
+        systemDescription: formData.get('systemDescription'),
+        contactEmail: formData.get('contactEmail'),
+        contactPhone: formData.get('contactPhone')
+    }));
+    
+    alert('Đã lưu thông tin hệ thống!');
+}
+
+function saveLearningSettings() {
+    const form = document.getElementById('learningSettingsForm');
+    const formData = new FormData(form);
+    
+    localStorage.setItem('learningSettings', JSON.stringify({
+        passingScore: formData.get('passingScore'),
+        maxAttempts: formData.get('maxAttempts'),
+        defaultQuizTime: formData.get('defaultQuizTime'),
+        questionsPerQuiz: formData.get('questionsPerQuiz'),
+        allowRetake: document.getElementById('allowRetake').checked,
+        showAnswers: document.getElementById('showAnswers').checked
+    }));
+    
+    alert('Đã lưu cài đặt học tập!');
+}
+
+function saveEmailSettings() {
+    const form = document.getElementById('emailSettingsForm');
+    const formData = new FormData(form);
+    
+    localStorage.setItem('emailSettings', JSON.stringify({
+        smtpHost: formData.get('smtpHost'),
+        smtpPort: formData.get('smtpPort'),
+        fromEmail: formData.get('fromEmail'),
+        enableEmail: document.getElementById('enableEmail').checked
+    }));
+    
+    alert('Đã lưu cài đặt email!');
+}
+
+function testEmail() {
+    alert('Chức năng gửi email thử nghiệm đang được phát triển!');
+}
+
+function clearCache() {
+    if (confirm('Bạn có chắc chắn muốn xóa cache?')) {
+        // Clear some cache
+        sessionStorage.clear();
+        alert('Đã xóa cache thành công!');
+    }
+}
+
+function backupDatabase() {
+    alert('Chức năng sao lưu dữ liệu đang được phát triển!');
+}
+
+function viewLogs() {
+    alert('Chức năng xem logs đang được phát triển!');
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadSettings, 100);
+    });
+} else {
+    setTimeout(window.loadSettings, 100);
+}
+</script>

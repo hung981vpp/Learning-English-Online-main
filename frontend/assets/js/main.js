@@ -90,32 +90,6 @@ function showToast(message, type = 'success') {
     });
 }
 
-// Add to page
-let toastContainer = document.getElementById('toastContainer');
-if (!toastContainer) {
-    toastContainer = document.createElement('div');
-    toastContainer.id = 'toastContainer';
-    toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
-    toastContainer.style.zIndex = '9999';
-    document.body.appendChild(toastContainer);
-}
-
-const toastElement = document.createElement('div');
-toastElement.innerHTML = toastHtml;
-toastContainer.appendChild(toastElement.firstElementChild);
-
-// Show toast
-const toast = new bootstrap.Toast(toastElement.firstElementChild, {
-    autohide: true,
-    delay: 3000
-});
-toast.show();
-
-// Remove after hidden
-toastElement.firstElementChild.addEventListener('hidden.bs.toast', () => {
-    toastElement.remove();
-});
-
 // Confirm dialog
 function confirmDialog(message, callback) {
     if (confirm(message)) {

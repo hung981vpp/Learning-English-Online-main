@@ -61,4 +61,8 @@ const adminOnly = (req, res, next) => {
     next();
 };
 
-module.exports = { authMiddleware, adminOnly };
+// Alias for consistency
+const authenticateToken = authMiddleware;
+const requireAdmin = adminOnly;
+
+module.exports = { authMiddleware, adminOnly, authenticateToken, requireAdmin };

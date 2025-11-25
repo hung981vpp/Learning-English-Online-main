@@ -1,0 +1,585 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-box {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 10px;
+    background: #f8f9fa;
+    transition: transform 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    background: #e9ecef;
+}
+
+.stat-box h3 {
+    color: #5d87ff;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.info-item {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #6c757d;
+    margin-bottom: 0.25rem;
+}
+
+.info-value {
+    color: #212529;
+    font-size: 1.1rem;
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <!-- Page Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4" style="margin-top: 0 !important;">
+        <div class="card-body px-4 py-2">
+            <h4 class="fw-semibold mb-1">Hồ sơ cá nhân</h4>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item">
+                        <a class="text-muted" href="/student/dashboard.html">Trang chủ</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Hồ sơ</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Info -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <img src="../assets/images/profile/user-1.jpg" 
+                         alt="Avatar" class="profile-avatar mb-3" id="user-avatar">
+                    <h4 class="fw-bold mb-1" id="profile-name">Đang tải...</h4>
+                    <p class="text-muted mb-3" id="profile-email">email@example.com</p>
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                        <i class="ti ti-user me-1"></i>Học viên
+                    </span>
+                </div>
+            </div>
+
+            <!-- Learning Stats -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-chart-bar me-2"></i>Thống kê học tập
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <h3 id="stat-courses">0</h3>
+                                <small class="text-muted">Khóa học</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <h3 id="stat-quizzes">0</h3>
+                                <small class="text-muted">Bài kiểm tra</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <h3 id="stat-flashcards">0</h3>
+                                <small class="text-muted">Flashcard</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-box">
+                                <h3 id="stat-avg-score">0</h3>
+                                <small class="text-muted">Điểm TB</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details & Settings -->
+        <div class="col-lg-8">
+            <!-- Personal Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="card-title fw-bold mb-0">
+                            <i class="ti ti-user me-2"></i>Thông tin cá nhân
+                        </h5>
+                        <button class="btn btn-sm btn-primary" onclick="toggleEditMode()">
+                            <i class="ti ti-edit me-1"></i><span id="edit-btn-text">Chỉnh sửa</span>
+                        </button>
+                    </div>
+
+                    <div id="view-mode">
+                        <div class="info-item">
+                            <div class="info-label">Họ và tên</div>
+                            <div class="info-value" id="view-name">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Email</div>
+                            <div class="info-value" id="view-email">-</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Số điện thoại</div>
+                            <div class="info-value" id="view-phone">Chưa cập nhật</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Ngày tham gia</div>
+                            <div class="info-value" id="view-joined">-</div>
+                        </div>
+                    </div>
+
+                    <div id="edit-mode" style="display: none;">
+                        <form id="profile-form">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Họ và tên</label>
+                                <input type="text" class="form-control" id="edit-name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Email</label>
+                                <input type="email" class="form-control" id="edit-email" disabled>
+                                <small class="text-muted">Email không thể thay đổi</small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Số điện thoại</label>
+                                <input type="tel" class="form-control" id="edit-phone" placeholder="0123456789">
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="ti ti-check me-1"></i>Lưu thay đổi
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary" onclick="cancelEdit()">
+                                    <i class="ti ti-x me-1"></i>Hủy
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Change Password -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                        <i class="ti ti-lock me-2"></i>Đổi mật khẩu
+                    </h5>
+                    <form id="password-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu hiện tại</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="current-password" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current-password')">
+                                    <i class="ti ti-eye" id="current-password-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mật khẩu mới</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="new-password" required minlength="6">
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new-password')">
+                                    <i class="ti ti-eye" id="new-password-icon"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Tối thiểu 6 ký tự</small>
+                            <div id="password-strength" class="mt-2" style="display: none;">
+                                <div class="progress" style="height: 5px;">
+                                    <div id="password-strength-bar" class="progress-bar" style="width: 0%"></div>
+                                </div>
+                                <small id="password-strength-text" class="text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Xác nhận mật khẩu mới</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="confirm-password" required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm-password')">
+                                    <i class="ti ti-eye" id="confirm-password-icon"></i>
+                                </button>
+                            </div>
+                            <small id="password-match-message" class="text-muted"></small>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="change-password-btn">
+                            <i class="ti ti-key me-1"></i>Đổi mật khẩu
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+console.log('=== PROFILE SCRIPT START ===');
+
+let userData = {};
+
+// Toast notification function
+function showToast(message, type = 'success') {
+    console.log('showToast called:', message, type);
+    
+    // Create toast container if not exists
+    let toastContainer = document.getElementById('toast-container-profile');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container-profile';
+        toastContainer.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Create toast
+    const toast = document.createElement('div');
+    const bgColor = type === 'success' ? '#28a745' : '#dc3545';
+    toast.style.cssText = `
+        background: ${bgColor};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: flex;
+        align-items: center;
+        min-width: 300px;
+        animation: slideIn 0.3s ease;
+    `;
+    toast.innerHTML = `
+        <i class="ti ti-${type === 'success' ? 'check' : 'alert-circle'} me-2 fs-5"></i>
+        <span>${message}</span>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Add animation styles
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(400px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(400px); opacity: 0; }
+    }
+`;
+document.head.appendChild(style);
+
+window.loadProfile = async function() {
+    try {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        userData = user;
+        
+        // Display user info
+        const fullName = user.hoTen || 'Người dùng';
+        const email = user.email || '';
+        
+        document.getElementById('profile-name').textContent = fullName;
+        document.getElementById('profile-email').textContent = email;
+        document.getElementById('view-name').textContent = fullName;
+        document.getElementById('view-email').textContent = email;
+        document.getElementById('view-phone').textContent = user.soDienThoai || 'Chưa cập nhật';
+        
+        // Update avatar - use default avatar image
+        const avatarUrl = user.avatar || '../assets/images/profile/user-1.jpg';
+        document.getElementById('user-avatar').src = avatarUrl;
+        
+        console.log('Avatar URL:', avatarUrl);
+        
+        // Format join date
+        if (user.ngayTao) {
+            const joinDate = new Date(user.ngayTao);
+            document.getElementById('view-joined').textContent = joinDate.toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        
+        // Load statistics
+        await loadStatistics();
+    } catch (error) {
+        console.error('Load profile error:', error);
+    }
+};
+
+async function loadStatistics() {
+    // Load courses
+    let coursesCount = 0;
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch('http://localhost:3001/api/courses/my/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        const data = await response.json();
+        if (data.success) {
+            coursesCount = data.data.length;
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
+    document.getElementById('stat-courses').textContent = coursesCount;
+    
+    // Count quizzes
+    const quizResults = Object.keys(localStorage).filter(key => key.startsWith('quiz_result_'));
+    document.getElementById('stat-quizzes').textContent = quizResults.length;
+    
+    // Count flashcards
+    const flashcardProgress = JSON.parse(localStorage.getItem('flashcard_progress') || '{}');
+    let learnedFlashcards = 0;
+    Object.values(flashcardProgress).forEach(setProgress => {
+        Object.values(setProgress).forEach(card => {
+            if (card.status === 'learned') learnedFlashcards++;
+        });
+    });
+    document.getElementById('stat-flashcards').textContent = learnedFlashcards;
+    
+    // Calculate average score
+    let totalScore = 0;
+    let count = 0;
+    quizResults.forEach(key => {
+        const result = JSON.parse(localStorage.getItem(key) || '{}');
+        if (result.totalScore) {
+            totalScore += result.totalScore;
+            count++;
+        }
+    });
+    const avgScore = count > 0 ? Math.round(totalScore / count) : 0;
+    document.getElementById('stat-avg-score').textContent = avgScore;
+}
+
+window.toggleEditMode = function() {
+    const viewMode = document.getElementById('view-mode');
+    const editMode = document.getElementById('edit-mode');
+    const btnText = document.getElementById('edit-btn-text');
+    
+    if (viewMode.style.display === 'none') {
+        viewMode.style.display = 'block';
+        editMode.style.display = 'none';
+        btnText.textContent = 'Chỉnh sửa';
+    } else {
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        btnText.textContent = 'Hủy';
+        
+        // Fill form with current data
+        document.getElementById('edit-name').value = userData.hoTen || '';
+        document.getElementById('edit-email').value = userData.email || '';
+        document.getElementById('edit-phone').value = userData.soDienThoai || '';
+    }
+};
+
+window.cancelEdit = function() {
+    toggleEditMode();
+};
+
+// Handle profile update
+document.addEventListener('DOMContentLoaded', () => {
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const newName = document.getElementById('edit-name').value;
+            const newPhone = document.getElementById('edit-phone').value;
+            
+            try {
+                // Update in localStorage (in real app, call API)
+                userData.hoTen = newName;
+                userData.soDienThoai = newPhone;
+                localStorage.setItem('user', JSON.stringify(userData));
+                
+                // Reload profile
+                await loadProfile();
+                toggleEditMode();
+                
+                showToast('Cập nhật thông tin thành công!', 'success');
+            } catch (error) {
+                console.error('Update profile error:', error);
+                showToast('Lỗi khi cập nhật thông tin', 'error');
+            }
+        });
+    }
+    
+    // Password strength checker
+    const newPasswordInput = document.getElementById('new-password');
+    if (newPasswordInput) {
+        newPasswordInput.addEventListener('input', (e) => {
+            const password = e.target.value;
+            const strengthDiv = document.getElementById('password-strength');
+            const strengthBar = document.getElementById('password-strength-bar');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            if (password.length === 0) {
+                strengthDiv.style.display = 'none';
+                return;
+            }
+            
+            strengthDiv.style.display = 'block';
+            
+            let strength = 0;
+            if (password.length >= 6) strength += 25;
+            if (password.length >= 8) strength += 25;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 15;
+            if (/[^a-zA-Z0-9]/.test(password)) strength += 10;
+            
+            strengthBar.style.width = strength + '%';
+            
+            if (strength < 40) {
+                strengthBar.className = 'progress-bar bg-danger';
+                strengthText.textContent = 'Yếu';
+                strengthText.className = 'text-danger';
+            } else if (strength < 70) {
+                strengthBar.className = 'progress-bar bg-warning';
+                strengthText.textContent = 'Trung bình';
+                strengthText.className = 'text-warning';
+            } else {
+                strengthBar.className = 'progress-bar bg-success';
+                strengthText.textContent = 'Mạnh';
+                strengthText.className = 'text-success';
+            }
+        });
+    }
+    
+    // Password match checker
+    const confirmPasswordInput = document.getElementById('confirm-password');
+    if (confirmPasswordInput) {
+        confirmPasswordInput.addEventListener('input', (e) => {
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = e.target.value;
+            const matchMessage = document.getElementById('password-match-message');
+            
+            if (confirmPassword.length === 0) {
+                matchMessage.textContent = '';
+                return;
+            }
+            
+            if (newPassword === confirmPassword) {
+                matchMessage.textContent = '✓ Mật khẩu khớp';
+                matchMessage.className = 'text-success';
+            } else {
+                matchMessage.textContent = '✗ Mật khẩu không khớp';
+                matchMessage.className = 'text-danger';
+            }
+        });
+    }
+    
+    // Handle password change
+    const passwordForm = document.getElementById('password-form');
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            if (newPassword !== confirmPassword) {
+                showToast('Mật khẩu mới không khớp!', 'error');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                showToast('Mật khẩu mới phải có ít nhất 6 ký tự!', 'error');
+                return;
+            }
+            
+            const btn = document.getElementById('change-password-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('http://localhost:3001/api/auth/change-password', {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        matKhauCu: currentPassword,
+                        matKhauMoi: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showToast('Đổi mật khẩu thành công!', 'success');
+                    passwordForm.reset();
+                    document.getElementById('password-strength').style.display = 'none';
+                    document.getElementById('password-match-message').textContent = '';
+                } else {
+                    showToast(data.message || 'Lỗi khi đổi mật khẩu', 'error');
+                }
+            } catch (error) {
+                console.error('Change password error:', error);
+                showToast('Lỗi khi đổi mật khẩu', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="ti ti-key me-1"></i>Đổi mật khẩu';
+            }
+        });
+    }
+});
+
+// Toggle password visibility
+window.togglePassword = function(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(inputId + '-icon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'ti ti-eye-off';
+    } else {
+        input.type = 'password';
+        icon.className = 'ti ti-eye';
+    }
+};
+
+// Auto load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadProfile, 100);
+    });
+} else {
+    setTimeout(window.loadProfile, 100);
+}
+
+console.log('=== PROFILE SCRIPT END ===');
+</script>

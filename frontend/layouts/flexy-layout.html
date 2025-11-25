@@ -431,6 +431,9 @@
         function getPageContentUrl() {
             const path = window.location.pathname;
             console.log("Current path for content:", path); // Debug path
+            if (path.endsWith('/student/dashboard.html')) {
+                return '/student/dashboard-content.html';
+            }
             if (path.endsWith('/student/my-courses.html')) {
                 return '/student/my-courses-content.html';
             }
@@ -446,17 +449,41 @@
             if (path.endsWith('/pages/quiz.html')) {
                 return '/pages/quiz-content.html'; // File nội dung cho trang quiz
             }
+            if (path.endsWith('/pages/quiz-detail.html')) {
+                return '/pages/quiz-detail-content.html'; // File nội dung cho trang chi tiết quiz
+            }
+            if (path.endsWith('/pages/flashcard.html')) {
+                return '/pages/flashcard-content.html'; // File nội dung cho trang flashcard
+            }
+            if (path.endsWith('/pages/flashcard-study.html')) {
+                return '/pages/flashcard-study-content.html'; // File nội dung cho trang học flashcard
+            }
             if (path.endsWith('/student/profile.html')) {
-                return '/student/profile-content.html'; // Cần tạo file này
+                return '/student/profile-content.html';
             }
             if (path.endsWith('/admin/dashboard.html')) {
-                return '/admin/dashboard-content.html'; // Cần tạo file này
+                return '/admin/dashboard-content.html';
             }
             if (path.endsWith('/admin/manage-users.html')) {
                 return '/admin/manage-users-content.html'; // Cần tạo file này
             }
             if (path.endsWith('/admin/manage-courses.html')) {
-                return '/admin/manage-courses-content.html'; // Cần tạo file này
+                return '/admin/manage-courses-content.html';
+            }
+            if (path.endsWith('/admin/manage-quizzes.html')) {
+                return '/admin/manage-quizzes-content.html';
+            }
+            if (path.endsWith('/admin/manage-lessons.html')) {
+                return '/admin/manage-lessons-content.html';
+            }
+            if (path.endsWith('/admin/manage-flashcards.html')) {
+                return '/admin/manage-flashcards-content.html';
+            }
+            if (path.endsWith('/admin/manage-results.html')) {
+                return '/admin/manage-results-content.html';
+            }
+            if (path.endsWith('/admin/settings.html')) {
+                return '/admin/settings-content.html';
             }
             // Thêm các trang khác
 
@@ -543,6 +570,11 @@
                     <span><i class="ti ti-file-pencil"></i></span><span class="hide-menu">Bài kiểm tra</span>
                   </a>
                 </li>
+            <li class="sidebar-item ${isActive('/pages/flashcard') ? 'active' : ''}">
+                  <a class="sidebar-link" href="/pages/flashcard.html" aria-expanded="false">
+                    <span><i class="ti ti-cards"></i></span><span class="hide-menu">Flashcard</span>
+                  </a>
+                </li>
             <li class="nav-small-cap">
                 <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                 <span class="hide-menu">Tài khoản</span>
@@ -559,15 +591,15 @@
             // Menu cho Admin
             else if (user && user.isAdmin) {
                 menuHtml += `
-            <li class="nav-small-cap">
-                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                <span class="hide-menu">Quản trị</span>
-            </li>
             <li class="sidebar-item ${activeClass('/admin/dashboard')}">
                 <a class="sidebar-link" href="/admin/dashboard.html" aria-expanded="false">
                     <span><i class="ti ti-layout-dashboard"></i></span>
                     <span class="hide-menu">Dashboard</span>
                 </a>
+            </li>
+            <li class="nav-small-cap">
+                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                <span class="hide-menu">Quản trị</span>
             </li>
             <li class="sidebar-item ${activeClass('/admin/manage-users')}">
                 <a class="sidebar-link" href="/admin/manage-users.html" aria-expanded="false">
@@ -579,6 +611,40 @@
                 <a class="sidebar-link" href="/admin/manage-courses.html" aria-expanded="false">
                     <span><i class="ti ti-book-2"></i></span>
                     <span class="hide-menu">Quản lý khóa học</span>
+                </a>
+            </li>
+            <li class="sidebar-item ${activeClass('/admin/manage-quizzes')}">
+                <a class="sidebar-link" href="/admin/manage-quizzes.html" aria-expanded="false">
+                    <span><i class="ti ti-file-pencil"></i></span>
+                    <span class="hide-menu">Quản lý bài kiểm tra</span>
+                </a>
+            </li>
+            <li class="sidebar-item ${activeClass('/admin/manage-lessons')}">
+                <a class="sidebar-link" href="/admin/manage-lessons.html" aria-expanded="false">
+                    <span><i class="ti ti-book-2"></i></span>
+                    <span class="hide-menu">Quản lý bài học</span>
+                </a>
+            </li>
+            <li class="sidebar-item ${activeClass('/admin/manage-flashcards')}">
+                <a class="sidebar-link" href="/admin/manage-flashcards.html" aria-expanded="false">
+                    <span><i class="ti ti-cards"></i></span>
+                    <span class="hide-menu">Quản lý Flashcard</span>
+                </a>
+            </li>
+            <li class="sidebar-item ${activeClass('/admin/manage-results')}">
+                <a class="sidebar-link" href="/admin/manage-results.html" aria-expanded="false">
+                    <span><i class="ti ti-clipboard-check"></i></span>
+                    <span class="hide-menu">Kết quả học tập</span>
+                </a>
+            </li>
+            <li class="nav-small-cap">
+                <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                <span class="hide-menu">Hệ thống</span>
+            </li>
+            <li class="sidebar-item ${activeClass('/admin/settings')}">
+                <a class="sidebar-link" href="/admin/settings.html" aria-expanded="false">
+                    <span><i class="ti ti-settings"></i></span>
+                    <span class="hide-menu">Cài đặt</span>
                 </a>
             </li>
         `;

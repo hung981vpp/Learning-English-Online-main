@@ -29,8 +29,8 @@
             <form id="loginForm">
                 <div id="errorMessage" class="alert alert-danger" style="display: none;" role="alert"></div>
                 <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" class="form-control" id="email" placeholder="Nhập email của bạn" required>
+                    <label for="email" class="form-label">Email hoặc Username</label>
+                    <input type="text" class="form-control" id="email" placeholder="Nhập email hoặc username" required>
                 </div>
                 <div class="mb-3">
                     <label for="password" class="form-label">Mật khẩu</label>
@@ -63,11 +63,17 @@
     <script>
         // Kiểm tra auth ngay lập tức (không cần đợi DOM)
         if (isAuthenticated()) {
-            const user = getCurrentUser();
-            if (user && user.isAdmin) {
-                window.location.href = 'admin/dashboard.html';
+            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+            if (redirectUrl) {
+                sessionStorage.removeItem('redirectAfterLogin');
+                window.location.href = redirectUrl;
             } else {
-                window.location.href = 'index.html';
+                const user = getCurrentUser();
+                if (user && user.isAdmin) {
+                    window.location.href = 'admin/dashboard.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
             }
         }
 
@@ -95,11 +101,11 @@
                 errorMessage.style.display = 'none';
 
                 // Lấy giá trị
-                const email = emailInput.value.trim();
+                const emailOrUsername = emailInput.value.trim();
                 const password = passwordInput.value;
 
                 // Validation
-                if (!email || !password) {
+                if (!emailOrUsername || !password) {
                     errorMessage.textContent = 'Vui lòng điền đầy đủ thông tin';
                     errorMessage.style.display = 'block';
                     return;
@@ -114,7 +120,7 @@
                     loginButton.innerHTML = `<span class="spinner-border spinner-border-sm me-2" style="width: 0.8rem; height: 0.8rem;"></span>${originalText}`;
 
                     // Gọi API login
-                    const data = await API.auth.login(email, password);
+                    const data = await API.auth.login(emailOrUsername, password);
 
                     if (data.success) {
                         // Lưu token và user info
@@ -128,10 +134,18 @@
 
                         // Chuyển hướng
                         setTimeout(() => {
-                            if (data.user.isAdmin) {
-                                window.location.href = 'admin/dashboard.html';
+                            // Kiểm tra xem có URL redirect không
+                            const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+                            if (redirectUrl) {
+                                sessionStorage.removeItem('redirectAfterLogin');
+                                window.location.href = redirectUrl;
                             } else {
-                                window.location.href = 'student/my-courses.html';
+                                // Mặc định redirect theo role
+                                if (data.user.isAdmin) {
+                                    window.location.href = 'admin/dashboard.html';
+                                } else {
+                                    window.location.href = 'student/my-courses.html';
+                                }
                             }
                         }, 1000);
                     }

@@ -77,14 +77,50 @@
 </div>
 
 <script>
-async function loadQuizzes() {
+console.log('=== QUIZ CONTENT SCRIPT START ===');
+console.log('Container element:', document.getElementById('quizzes-container'));
+
+window.loadQuizzes = async function() {
     try {
-        const response = await apiCall('/api/quizzes');
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '../login.html';
+            return;
+        }
+
+        // Get filter values
+        const filterType = document.getElementById('filter-type')?.value || '';
+        const filterLevel = document.getElementById('filter-level')?.value || '';
+
+        console.log('Loading quizzes with filters:', { filterType, filterLevel });
+        const response = await fetch('http://localhost:3001/api/quizzes', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
         
-        if (response.success) {
-            displayQuizzes(response.data);
+        if (data.success) {
+            // Apply client-side filtering
+            let filteredQuizzes = data.data;
+            
+            if (filterType) {
+                filteredQuizzes = filteredQuizzes.filter(quiz => quiz.LoaiBaiKiemTra === filterType);
+            }
+            
+            if (filterLevel) {
+                filteredQuizzes = filteredQuizzes.filter(quiz => quiz.CapDo === filterLevel);
+            }
+            
+            console.log('Filtered quizzes:', filteredQuizzes.length);
+            displayQuizzes(filteredQuizzes);
         } else {
-            throw new Error(response.message);
+            throw new Error(data.message || 'Không thể tải danh sách bài kiểm tra');
         }
     } catch (error) {
         console.error('Load quizzes error:', error);
@@ -98,7 +134,7 @@ async function loadQuizzes() {
     }
 }
 
-function displayQuizzes(quizzes) {
+window.displayQuizzes = function(quizzes) {
     const container = document.getElementById('quizzes-container');
     
     if (!quizzes || quizzes.length === 0) {
@@ -116,7 +152,12 @@ function displayQuizzes(quizzes) {
         return;
     }
 
-    container.innerHTML = quizzes.map(quiz => `
+    container.innerHTML = quizzes.map(quiz => {
+        // Check if user has completed this quiz
+        const savedResult = localStorage.getItem(`quiz_result_${quiz.MaBaiKiemTra}`);
+        const result = savedResult ? JSON.parse(savedResult) : null;
+        
+        return `
         <div class="col-sm-6 col-lg-4">
             <div class="card hover-img">
                 <div class="card-body p-4">
@@ -125,12 +166,22 @@ function displayQuizzes(quizzes) {
                             ${getQuizTypeName(quiz.LoaiBaiKiemTra)}
                         </span>
                         ${quiz.CapDo ? `<span class="badge bg-secondary-subtle text-secondary rounded-3 py-1 px-2 ms-2">${quiz.CapDo}</span>` : ''}
+                        ${result ? `<span class="badge bg-success-subtle text-success rounded-3 py-1 px-2 ms-2"><i class="ti ti-check"></i> Đã làm</span>` : ''}
                     </div>
                     
                     <h5 class="card-title fw-semibold mb-2">${quiz.TenBaiKiemTra}</h5>
                     <p class="card-text text-dark mb-3" style="min-height: 48px;">
                         ${quiz.MoTa || 'Không có mô tả'}
                     </p>
+                    
+                    ${result ? `
+                        <div class="alert alert-success mb-3 py-2">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span><i class="ti ti-trophy"></i> Điểm: <strong>${result.totalScore}</strong></span>
+                                <span>${result.correctCount}/${result.totalQuestions} câu đúng</span>
+                            </div>
+                        </div>
+                    ` : ''}
                     
                     <div class="d-flex justify-content-between text-muted mb-3">
                         <div class="d-flex align-items-center">
@@ -148,15 +199,16 @@ function displayQuizzes(quizzes) {
                     </div>
                     
                     <button class="btn btn-primary w-100" onclick="startQuiz(${quiz.MaBaiKiemTra})">
-                        <i class="ti ti-play"></i> Bắt đầu làm bài
+                        <i class="ti ti-play"></i> ${result ? 'Xem kết quả / Làm lại' : 'Bắt đầu làm bài'}
                     </button>
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
-function getQuizTypeName(type) {
+window.getQuizTypeName = function(type) {
     const names = {
         'placement_test': 'Kiểm tra đầu vào',
         'progress_test': 'Kiểm tra tiến độ',
@@ -165,11 +217,22 @@ function getQuizTypeName(type) {
     return names[type] || 'Khác';
 }
 
-function startQuiz(quizId) {
+window.startQuiz = function(quizId) {
     window.location.href = `quiz-detail.html?id=${quizId}`;
+};
+
+// Auto load quizzes
+console.log('Setting up auto-load...');
+if (document.readyState === 'loading') {
+    console.log('Document still loading, waiting for DOMContentLoaded...');
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('DOMContentLoaded fired!');
+        setTimeout(window.loadQuizzes, 100);
+    });
+} else {
+    console.log('Document already loaded, calling loadQuizzes immediately...');
+    setTimeout(window.loadQuizzes, 100);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(loadQuizzes, 100);
-});
+console.log('=== QUIZ CONTENT SCRIPT END ===');
 </script>

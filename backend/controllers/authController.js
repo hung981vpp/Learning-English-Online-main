@@ -101,7 +101,7 @@ class AuthController {
       if (!email || !matKhau) {
         return res.status(400).json({
           success: false,
-          message: 'Vui lòng nhập email và mật khẩu'
+          message: 'Vui lòng nhập email/username và mật khẩu'
         });
       }
       
@@ -112,7 +112,7 @@ class AuthController {
         if (!isValidPassword) {
           return res.status(401).json({
             success: false,
-            message: 'Email hoặc mật khẩu không chính xác'
+            message: 'Email/Username hoặc mật khẩu không chính xác'
           });
         }
         
@@ -144,11 +144,12 @@ class AuthController {
       }
       
       // ===== KIỂM TRA USER TRONG DATABASE =====
+      // Hỗ trợ đăng nhập bằng cả email và username
       const userQuery = `
         SELECT nd.*, vt.TenVaiTro
         FROM NguoiDung nd
         INNER JOIN VaiTro vt ON nd.MaVaiTro = vt.MaVaiTro
-        WHERE nd.Email = @email
+        WHERE nd.Email = @email OR nd.TenDangNhap = @email
       `;
       
       const result = await query(userQuery, { email });
@@ -156,7 +157,7 @@ class AuthController {
       if (result.recordset.length === 0) {
         return res.status(401).json({
           success: false,
-          message: 'Email hoặc mật khẩu không chính xác'
+          message: 'Email/Username hoặc mật khẩu không chính xác'
         });
       }
       
@@ -168,7 +169,7 @@ class AuthController {
       if (!isValidPassword) {
         return res.status(401).json({
           success: false,
-          message: 'Email hoặc mật khẩu không chính xác'
+          message: 'Email/Username hoặc mật khẩu không chính xác'
         });
       }
       

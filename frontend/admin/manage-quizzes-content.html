@@ -1,0 +1,597 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.badge-type {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.search-box {
+    max-width: 300px;
+}
+
+/* Fix modal z-index */
+.modal-backdrop {
+    z-index: 10000 !important;
+}
+
+.modal {
+    z-index: 10001 !important;
+}
+
+.modal-dialog {
+    position: relative;
+    z-index: 10002 !important;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 10003 !important;
+}
+
+.modal.show .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <!-- Page Header -->
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-1">Quản lý bài kiểm tra</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active" aria-current="page">Bài kiểm tra</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addQuizModal">
+                        <i class="ti ti-plus me-1"></i>Thêm bài kiểm tra
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm bài kiểm tra...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="courseFilter">
+                        <option value="">Tất cả khóa học</option>
+                    </select>
+                </div>
+                <div class="col-md-5 text-end">
+                    <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
+                        <i class="ti ti-file-spreadsheet me-1"></i>Xuất Excel
+                    </button>
+                    <span class="text-muted">Tổng: <strong id="totalQuizzes">0</strong> bài kiểm tra</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quizzes Table -->
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên bài kiểm tra</th>
+                            <th>Khóa học</th>
+                            <th>Số câu hỏi</th>
+                            <th>Thời gian</th>
+                            <th>Lượt làm</th>
+                            <th>Ngày tạo</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="quizzesTableBody">
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Quiz Modal -->
+<div class="modal fade" id="addQuizModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm bài kiểm tra mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addQuizForm">
+                    <div class="mb-3">
+                        <label class="form-label">Tên bài kiểm tra <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenBaiKiemTra" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" name="MoTa" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Khóa học <span class="text-danger">*</span></label>
+                                <select class="form-select" name="MaKhoaHoc" id="courseSelect" required>
+                                    <option value="">Chọn khóa học...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Thời gian (phút)</label>
+                                <input type="number" class="form-control" name="ThoiGianLamBai" min="5" value="30">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Điểm tối thiểu để đạt</label>
+                                <input type="number" class="form-control" name="DiemToiThieu" min="0" max="10" step="0.5" value="5">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Số lần làm tối đa</label>
+                                <input type="number" class="form-control" name="SoLanLamToiDa" min="1" value="3">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleAddQuiz()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Quiz Modal -->
+<div class="modal fade" id="editQuizModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa bài kiểm tra</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editQuizForm">
+                    <input type="hidden" name="MaBaiKiemTra">
+                    <div class="mb-3">
+                        <label class="form-label">Tên bài kiểm tra <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenBaiKiemTra" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" name="MoTa" rows="3"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Khóa học <span class="text-danger">*</span></label>
+                                <select class="form-select" name="MaKhoaHoc" id="editCourseSelect" required>
+                                    <option value="">Chọn khóa học...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Thời gian (phút)</label>
+                                <input type="number" class="form-control" name="ThoiGianLamBai" min="5">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Điểm tối thiểu để đạt</label>
+                                <input type="number" class="form-control" name="DiemToiThieu" min="0" max="10" step="0.5">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Số lần làm tối đa</label>
+                                <input type="number" class="form-control" name="SoLanLamToiDa" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleEditQuiz()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allQuizzes = [];
+let filteredQuizzes = [];
+let courses = [];
+
+window.loadManageQuizzes = async function() {
+    // Move modals to body
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentElement.tagName !== 'BODY') {
+            document.body.appendChild(modal);
+        }
+    });
+    
+    await loadCourses();
+    await loadQuizzes();
+    setupEventListeners();
+};
+
+async function loadCourses() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            courses = data.data;
+            populateCourseSelects();
+            populateCourseFilter();
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
+}
+
+function populateCourseSelects() {
+    const courseSelect = document.getElementById('courseSelect');
+    const editCourseSelect = document.getElementById('editCourseSelect');
+    
+    const options = courses.map(c => 
+        `<option value="${c.MaKhoaHoc}">${c.TenKhoaHoc}</option>`
+    ).join('');
+    
+    courseSelect.innerHTML = '<option value="">Chọn khóa học...</option>' + options;
+    editCourseSelect.innerHTML = '<option value="">Chọn khóa học...</option>' + options;
+}
+
+function populateCourseFilter() {
+    const courseFilter = document.getElementById('courseFilter');
+    const options = courses.map(c => 
+        `<option value="${c.MaKhoaHoc}">${c.TenKhoaHoc}</option>`
+    ).join('');
+    courseFilter.innerHTML = '<option value="">Tất cả khóa học</option>' + options;
+}
+
+async function loadQuizzes() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/quizzes', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allQuizzes = data.data;
+            filteredQuizzes = allQuizzes;
+            renderQuizzes(filteredQuizzes);
+            document.getElementById('totalQuizzes').textContent = allQuizzes.length;
+        }
+    } catch (error) {
+        console.error('Error loading quizzes:', error);
+        showError('Không thể tải danh sách bài kiểm tra');
+    }
+}
+
+function renderQuizzes(quizzes) {
+    const tbody = document.getElementById('quizzesTableBody');
+    
+    if (quizzes.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                    <i class="ti ti-file-pencil fs-1"></i>
+                    <p class="mt-2">Không tìm thấy bài kiểm tra nào</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = quizzes.map(quiz => {
+        const createdDate = new Date(quiz.NgayTao).toLocaleDateString('vi-VN');
+        
+        return `
+            <tr>
+                <td>${quiz.MaBaiKiemTra}</td>
+                <td>
+                    <div class="fw-semibold">${quiz.TenBaiKiemTra}</div>
+                    <small class="text-muted">${quiz.MoTa ? quiz.MoTa.substring(0, 40) + '...' : ''}</small>
+                </td>
+                <td>${quiz.TenKhoaHoc || 'N/A'}</td>
+                <td><span class="badge bg-info">${quiz.SoCauHoi || 0} câu</span></td>
+                <td>${quiz.ThoiGianLamBai || 0} phút</td>
+                <td>${quiz.LuotLam || 0}</td>
+                <td>${createdDate}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-light-primary action-btn me-1" onclick="editQuiz(${quiz.MaBaiKiemTra})" title="Chỉnh sửa">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light-danger action-btn" onclick="deleteQuiz(${quiz.MaBaiKiemTra})" title="Xóa">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterQuizzes(searchTerm, document.getElementById('courseFilter').value);
+    });
+    
+    document.getElementById('courseFilter').addEventListener('change', (e) => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filterQuizzes(searchTerm, e.target.value);
+    });
+}
+
+function filterQuizzes(searchTerm, courseFilter) {
+    filteredQuizzes = allQuizzes.filter(quiz => {
+        const matchSearch = quiz.TenBaiKiemTra.toLowerCase().includes(searchTerm) || 
+                          (quiz.MoTa && quiz.MoTa.toLowerCase().includes(searchTerm));
+        const matchCourse = !courseFilter || quiz.MaKhoaHoc == courseFilter;
+        return matchSearch && matchCourse;
+    });
+    
+    renderQuizzes(filteredQuizzes);
+}
+
+async function handleAddQuiz() {
+    const form = document.getElementById('addQuizForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    
+    const quizData = {
+        TenBaiKiemTra: formData.get('TenBaiKiemTra'),
+        MoTa: formData.get('MoTa'),
+        MaKhoaHoc: parseInt(formData.get('MaKhoaHoc')),
+        ThoiGianLamBai: parseInt(formData.get('ThoiGianLamBai')),
+        DiemToiThieu: parseFloat(formData.get('DiemToiThieu')),
+        SoLanLamToiDa: parseInt(formData.get('SoLanLamToiDa'))
+    };
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/quizzes', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(quizData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addQuizModal')).hide();
+            form.reset();
+            await loadQuizzes();
+            showSuccess('Thêm bài kiểm tra thành công!');
+        } else {
+            showError(data.message || 'Không thể thêm bài kiểm tra');
+        }
+    } catch (error) {
+        console.error('Error adding quiz:', error);
+        showError('Có lỗi xảy ra khi thêm bài kiểm tra');
+    }
+}
+
+function editQuiz(quizId) {
+    const quiz = allQuizzes.find(q => q.MaBaiKiemTra === quizId);
+    if (!quiz) return;
+    
+    const form = document.getElementById('editQuizForm');
+    form.querySelector('[name="MaBaiKiemTra"]').value = quiz.MaBaiKiemTra;
+    form.querySelector('[name="TenBaiKiemTra"]').value = quiz.TenBaiKiemTra;
+    form.querySelector('[name="MoTa"]').value = quiz.MoTa || '';
+    form.querySelector('[name="MaKhoaHoc"]').value = quiz.MaKhoaHoc;
+    form.querySelector('[name="ThoiGianLamBai"]').value = quiz.ThoiGianLamBai || 30;
+    form.querySelector('[name="DiemToiThieu"]').value = quiz.DiemToiThieu || 5;
+    form.querySelector('[name="SoLanLamToiDa"]').value = quiz.SoLanLamToiDa || 3;
+    
+    new bootstrap.Modal(document.getElementById('editQuizModal')).show();
+}
+
+async function handleEditQuiz() {
+    const form = document.getElementById('editQuizForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    const quizId = formData.get('MaBaiKiemTra');
+    
+    const quizData = {
+        TenBaiKiemTra: formData.get('TenBaiKiemTra'),
+        MoTa: formData.get('MoTa'),
+        MaKhoaHoc: parseInt(formData.get('MaKhoaHoc')),
+        ThoiGianLamBai: parseInt(formData.get('ThoiGianLamBai')),
+        DiemToiThieu: parseFloat(formData.get('DiemToiThieu')),
+        SoLanLamToiDa: parseInt(formData.get('SoLanLamToiDa'))
+    };
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/quizzes/${quizId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(quizData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editQuizModal')).hide();
+            await loadQuizzes();
+            showSuccess('Cập nhật bài kiểm tra thành công!');
+        } else {
+            showError(data.message || 'Không thể cập nhật bài kiểm tra');
+        }
+    } catch (error) {
+        console.error('Error updating quiz:', error);
+        showError('Có lỗi xảy ra khi cập nhật bài kiểm tra');
+    }
+}
+
+async function deleteQuiz(quizId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa bài kiểm tra này?')) return;
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/quizzes/${quizId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await loadQuizzes();
+            showSuccess('Xóa bài kiểm tra thành công!');
+        } else {
+            showError(data.message || 'Không thể xóa bài kiểm tra');
+        }
+    } catch (error) {
+        console.error('Error deleting quiz:', error);
+        showError('Có lỗi xảy ra khi xóa bài kiểm tra');
+    }
+}
+
+function showSuccess(message) {
+    alert(message);
+}
+
+function showError(message) {
+    alert(message);
+}
+
+function exportToExcel() {
+    // Load SheetJS library if not loaded
+    if (typeof XLSX === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+        script.onload = () => performExport();
+        document.head.appendChild(script);
+    } else {
+        performExport();
+    }
+}
+
+function performExport() {
+    // Prepare data for export
+    const exportData = filteredQuizzes.map(quiz => ({
+        'ID': quiz.MaBaiKiemTra,
+        'Tên bài kiểm tra': quiz.TenBaiKiemTra,
+        'Mô tả': quiz.MoTa || '',
+        'Khóa học': quiz.TenKhoaHoc || 'N/A',
+        'Số câu hỏi': quiz.SoCauHoi || 0,
+        'Thời gian (phút)': quiz.ThoiGianLamBai || 0,
+        'Điểm tối thiểu': quiz.DiemToiThieu || 0,
+        'Số lần làm tối đa': quiz.SoLanLamToiDa || 0,
+        'Lượt làm': quiz.LuotLam || 0,
+        'Ngày tạo': new Date(quiz.NgayTao).toLocaleDateString('vi-VN')
+    }));
+    
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths
+    ws['!cols'] = [
+        { wch: 8 },  // ID
+        { wch: 30 }, // Tên bài kiểm tra
+        { wch: 40 }, // Mô tả
+        { wch: 25 }, // Khóa học
+        { wch: 12 }, // Số câu hỏi
+        { wch: 15 }, // Thời gian
+        { wch: 15 }, // Điểm tối thiểu
+        { wch: 18 }, // Số lần làm tối đa
+        { wch: 12 }, // Lượt làm
+        { wch: 15 }  // Ngày tạo
+    ];
+    
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Bài kiểm tra');
+    
+    // Generate filename with current date
+    const filename = `Danh_sach_bai_kiem_tra_${new Date().toISOString().split('T')[0]}.xlsx`;
+    
+    // Save file
+    XLSX.writeFile(wb, filename);
+    
+    showSuccess('Xuất file Excel thành công!');
+}
+
+// Auto load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadManageQuizzes, 100);
+    });
+} else {
+    setTimeout(window.loadManageQuizzes, 100);
+}
+</script>

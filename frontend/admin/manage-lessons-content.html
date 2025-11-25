@@ -1,0 +1,559 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+* {
+    font-family: 'Be Vietnam Pro', sans-serif !important;
+}
+
+.action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+.search-box {
+    max-width: 300px;
+}
+
+.modal-backdrop {
+    z-index: 10000 !important;
+}
+
+.modal {
+    z-index: 10001 !important;
+}
+
+.modal-dialog {
+    position: relative;
+    z-index: 10002 !important;
+}
+
+.modal-content {
+    position: relative;
+    z-index: 10003 !important;
+}
+
+.modal.show .modal-dialog {
+    display: flex;
+    align-items: center;
+    min-height: calc(100% - 1rem);
+}
+</style>
+
+<div class="container-fluid" style="margin-top: 0px !important; padding-top: 0 !important;">
+    <div class="card bg-light-info shadow-none position-relative overflow-hidden mb-4">
+        <div class="card-body px-4 py-3">
+            <div class="row align-items-center">
+                <div class="col-9">
+                    <h4 class="fw-semibold mb-1">Quản lý bài học</h4>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-0">
+                            <li class="breadcrumb-item"><a href="dashboard.html">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Bài học</li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="col-3 text-end">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLessonModal">
+                        <i class="ti ti-plus me-1"></i>Thêm bài học
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm bài học...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="courseFilter">
+                        <option value="">Tất cả khóa học</option>
+                    </select>
+                </div>
+                <div class="col-md-5 text-end">
+                    <button class="btn btn-success btn-sm me-2" onclick="exportToExcel()">
+                        <i class="ti ti-file-spreadsheet me-1"></i>Xuất Excel
+                    </button>
+                    <span class="text-muted">Tổng: <strong id="totalLessons">0</strong> bài học</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mt-3">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên bài học</th>
+                            <th>Khóa học</th>
+                            <th>Thứ tự</th>
+                            <th>Thời lượng</th>
+                            <th>Ngày tạo</th>
+                            <th class="text-center">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lessonsTableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addLessonModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm bài học mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addLessonForm">
+                    <div class="mb-3">
+                        <label class="form-label">Tên bài học <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenBaiHoc" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung</label>
+                        <textarea class="form-control" name="NoiDung" rows="4"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Khóa học <span class="text-danger">*</span></label>
+                                <select class="form-select" name="MaKhoaHoc" id="courseSelect" required>
+                                    <option value="">Chọn khóa học...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Thứ tự</label>
+                                <input type="number" class="form-control" name="ThuTu" min="1" value="1">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Thời lượng (phút)</label>
+                                <input type="number" class="form-control" name="ThoiLuong" min="1" value="30">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL Video</label>
+                        <input type="text" class="form-control" name="VideoUrl" placeholder="https://...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleAddLesson()">Thêm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editLessonModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chỉnh sửa bài học</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editLessonForm">
+                    <input type="hidden" name="MaBaiHoc">
+                    <div class="mb-3">
+                        <label class="form-label">Tên bài học <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="TenBaiHoc" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung</label>
+                        <textarea class="form-control" name="NoiDung" rows="4"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Khóa học <span class="text-danger">*</span></label>
+                                <select class="form-select" name="MaKhoaHoc" id="editCourseSelect" required>
+                                    <option value="">Chọn khóa học...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Thứ tự</label>
+                                <input type="number" class="form-control" name="ThuTu" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label class="form-label">Thời lượng (phút)</label>
+                                <input type="number" class="form-control" name="ThoiLuong" min="1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL Video</label>
+                        <input type="text" class="form-control" name="VideoUrl" placeholder="https://...">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="handleEditLesson()">Cập nhật</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allLessons = [];
+let filteredLessons = [];
+let courses = [];
+
+window.loadManageLessons = async function() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        if (modal.parentElement.tagName !== 'BODY') {
+            document.body.appendChild(modal);
+        }
+    });
+    
+    await loadCourses();
+    await loadLessons();
+    setupEventListeners();
+};
+
+async function loadCourses() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/courses', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            courses = data.data;
+            populateCourseSelects();
+            populateCourseFilter();
+        }
+    } catch (error) {
+        console.error('Error loading courses:', error);
+    }
+}
+
+function populateCourseSelects() {
+    const courseSelect = document.getElementById('courseSelect');
+    const editCourseSelect = document.getElementById('editCourseSelect');
+    
+    const options = courses.map(c => 
+        `<option value="${c.MaKhoaHoc}">${c.TenKhoaHoc}</option>`
+    ).join('');
+    
+    courseSelect.innerHTML = '<option value="">Chọn khóa học...</option>' + options;
+    editCourseSelect.innerHTML = '<option value="">Chọn khóa học...</option>' + options;
+}
+
+function populateCourseFilter() {
+    const courseFilter = document.getElementById('courseFilter');
+    const options = courses.map(c => 
+        `<option value="${c.MaKhoaHoc}">${c.TenKhoaHoc}</option>`
+    ).join('');
+    courseFilter.innerHTML = '<option value="">Tất cả khóa học</option>' + options;
+}
+
+async function loadLessons() {
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/lessons', {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            allLessons = data.data;
+            filteredLessons = allLessons;
+            renderLessons(filteredLessons);
+            document.getElementById('totalLessons').textContent = allLessons.length;
+        }
+    } catch (error) {
+        console.error('Error loading lessons:', error);
+        showError('Không thể tải danh sách bài học');
+    }
+}
+
+function renderLessons(lessons) {
+    const tbody = document.getElementById('lessonsTableBody');
+    
+    if (lessons.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="text-center py-4 text-muted">
+                    <i class="ti ti-book-2 fs-1"></i>
+                    <p class="mt-2">Không tìm thấy bài học nào</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    tbody.innerHTML = lessons.map(lesson => {
+        const createdDate = new Date(lesson.NgayTao).toLocaleDateString('vi-VN');
+        
+        return `
+            <tr>
+                <td>${lesson.MaBaiHoc}</td>
+                <td>
+                    <div class="fw-semibold">${lesson.TenBaiHoc}</div>
+                    <small class="text-muted">${lesson.NoiDung ? lesson.NoiDung.substring(0, 50) + '...' : ''}</small>
+                </td>
+                <td>${lesson.TenKhoaHoc || 'N/A'}</td>
+                <td><span class="badge bg-info">${lesson.ThuTu || 0}</span></td>
+                <td>${lesson.ThoiLuong || 0} phút</td>
+                <td>${createdDate}</td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-light-primary action-btn me-1" onclick="editLesson(${lesson.MaBaiHoc})" title="Chỉnh sửa">
+                        <i class="ti ti-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-light-danger action-btn" onclick="deleteLesson(${lesson.MaBaiHoc})" title="Xóa">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function setupEventListeners() {
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        filterLessons(searchTerm, document.getElementById('courseFilter').value);
+    });
+    
+    document.getElementById('courseFilter').addEventListener('change', (e) => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        filterLessons(searchTerm, e.target.value);
+    });
+}
+
+function filterLessons(searchTerm, courseFilter) {
+    filteredLessons = allLessons.filter(lesson => {
+        const matchSearch = lesson.TenBaiHoc.toLowerCase().includes(searchTerm) || 
+                          (lesson.NoiDung && lesson.NoiDung.toLowerCase().includes(searchTerm));
+        const matchCourse = !courseFilter || lesson.MaKhoaHoc == courseFilter;
+        return matchSearch && matchCourse;
+    });
+    
+    renderLessons(filteredLessons);
+}
+
+async function handleAddLesson() {
+    const form = document.getElementById('addLessonForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    
+    const lessonData = {
+        TenBaiHoc: formData.get('TenBaiHoc'),
+        NoiDung: formData.get('NoiDung'),
+        MaKhoaHoc: parseInt(formData.get('MaKhoaHoc')),
+        ThuTu: parseInt(formData.get('ThuTu')),
+        ThoiLuong: parseInt(formData.get('ThoiLuong')),
+        VideoUrl: formData.get('VideoUrl')
+    };
+    
+    try {
+        const response = await fetch('http://localhost:3001/api/admin/lessons', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(lessonData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('addLessonModal')).hide();
+            form.reset();
+            await loadLessons();
+            showSuccess('Thêm bài học thành công!');
+        } else {
+            showError(data.message || 'Không thể thêm bài học');
+        }
+    } catch (error) {
+        console.error('Error adding lesson:', error);
+        showError('Có lỗi xảy ra khi thêm bài học');
+    }
+}
+
+function editLesson(lessonId) {
+    const lesson = allLessons.find(l => l.MaBaiHoc === lessonId);
+    if (!lesson) return;
+    
+    const form = document.getElementById('editLessonForm');
+    form.querySelector('[name="MaBaiHoc"]').value = lesson.MaBaiHoc;
+    form.querySelector('[name="TenBaiHoc"]').value = lesson.TenBaiHoc;
+    form.querySelector('[name="NoiDung"]').value = lesson.NoiDung || '';
+    form.querySelector('[name="MaKhoaHoc"]').value = lesson.MaKhoaHoc;
+    form.querySelector('[name="ThuTu"]').value = lesson.ThuTu || 1;
+    form.querySelector('[name="ThoiLuong"]').value = lesson.ThoiLuong || 30;
+    form.querySelector('[name="VideoUrl"]').value = lesson.VideoUrl || '';
+    
+    new bootstrap.Modal(document.getElementById('editLessonModal')).show();
+}
+
+async function handleEditLesson() {
+    const form = document.getElementById('editLessonForm');
+    const formData = new FormData(form);
+    const token = localStorage.getItem('token');
+    const lessonId = formData.get('MaBaiHoc');
+    
+    const lessonData = {
+        TenBaiHoc: formData.get('TenBaiHoc'),
+        NoiDung: formData.get('NoiDung'),
+        MaKhoaHoc: parseInt(formData.get('MaKhoaHoc')),
+        ThuTu: parseInt(formData.get('ThuTu')),
+        ThoiLuong: parseInt(formData.get('ThoiLuong')),
+        VideoUrl: formData.get('VideoUrl')
+    };
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/lessons/${lessonId}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(lessonData)
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('editLessonModal')).hide();
+            await loadLessons();
+            showSuccess('Cập nhật bài học thành công!');
+        } else {
+            showError(data.message || 'Không thể cập nhật bài học');
+        }
+    } catch (error) {
+        console.error('Error updating lesson:', error);
+        showError('Có lỗi xảy ra khi cập nhật bài học');
+    }
+}
+
+async function deleteLesson(lessonId) {
+    if (!confirm('Bạn có chắc chắn muốn xóa bài học này?')) return;
+    
+    const token = localStorage.getItem('token');
+    
+    try {
+        const response = await fetch(`http://localhost:3001/api/admin/lessons/${lessonId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            await loadLessons();
+            showSuccess('Xóa bài học thành công!');
+        } else {
+            showError(data.message || 'Không thể xóa bài học');
+        }
+    } catch (error) {
+        console.error('Error deleting lesson:', error);
+        showError('Có lỗi xảy ra khi xóa bài học');
+    }
+}
+
+function exportToExcel() {
+    if (typeof XLSX === 'undefined') {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+        script.onload = () => performExport();
+        document.head.appendChild(script);
+    } else {
+        performExport();
+    }
+}
+
+function performExport() {
+    const exportData = filteredLessons.map(lesson => ({
+        'ID': lesson.MaBaiHoc,
+        'Tên bài học': lesson.TenBaiHoc,
+        'Nội dung': lesson.NoiDung || '',
+        'Khóa học': lesson.TenKhoaHoc || 'N/A',
+        'Thứ tự': lesson.ThuTu || 0,
+        'Thời lượng (phút)': lesson.ThoiLuong || 0,
+        'Ngày tạo': new Date(lesson.NgayTao).toLocaleDateString('vi-VN')
+    }));
+    
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    
+    ws['!cols'] = [
+        { wch: 8 },
+        { wch: 30 },
+        { wch: 50 },
+        { wch: 25 },
+        { wch: 10 },
+        { wch: 15 },
+        { wch: 15 }
+    ];
+    
+    XLSX.utils.book_append_sheet(wb, ws, 'Bài học');
+    
+    const filename = `Danh_sach_bai_hoc_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, filename);
+    
+    showSuccess('Xuất file Excel thành công!');
+}
+
+function showSuccess(message) {
+    alert(message);
+}
+
+function showError(message) {
+    alert(message);
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(window.loadManageLessons, 100);
+    });
+} else {
+    setTimeout(window.loadManageLessons, 100);
+}
+</script>
